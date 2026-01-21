@@ -50,6 +50,13 @@ body {
     object-fit: contain;
 }
 
+.sidebar .logo img {
+  width: 160px;
+  display: block;
+  margin: 20px auto;
+}
+
+
 .sidebar ul { list-style: none; margin-top: 20px; }
 .sidebar li {
     padding: 15px 20px; cursor: pointer; transition: 0.3s;
@@ -203,4 +210,5 @@ button, .btn-file {
     cursor: pointer;
     transition: 0.2s;
 }
+
 .proc-card-icon:hover { background: rgba(255,255,255,0.4); transform: scale(1.1); }
