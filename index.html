@@ -3,315 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <title>Sistema de Gestão de Saúde</title>
-
-    <!-- SUPABASE V2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginOverlay" style="position:fixed; inset:0; background:#0056b3; z-index:9999; display:flex; justify-content:center; align-items:center;">
-    <div class="card" style="width:400px; padding:40px;">
-        <h2>Acesso ao Sistema</h2>
+<div id="toast-container"></div>
 
+<div id="loginOverlay" style="position:fixed; inset:0; z-index:9999; display:flex; justify-content:center; align-items:center;">
+    <div class="card" style="width:400px; padding:40px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+             <i class="ph ph-lock-key" style="font-size: 3rem; color: #0056b3;"></i>
+        </div>
+        <h2 style="text-align: center; margin-bottom: 20px;">Acesso ao Sistema</h2>
         <label>E-mail</label>
         <input type="email" id="emailLogin">
-
         <label>Senha</label>
         <input type="password" id="senhaLogin">
-
-        <button id="btnAuthMain">Entrar</button>
-        <p id="msgLogin" style="color:red"></p>
+        <button id="btnAuthMain" style="width: 100%; margin-top: 15px;">Entrar</button>
+        <p id="msgLogin" style="color:red; text-align: center; margin-top: 10px;"></p>
     </div>
 </div>
 
-    <div class="app-container">
-        <nav class="sidebar">
-            <div class="logo">
-              <img src="logo2.png" alt="Saúde+" />
-            </div>
+<div class="app-container">
+    <nav class="sidebar">
+        <div class="logo">
+             <h2 style="color:var(--primary); text-align:center;"><i class="ph ph-heartbeat"></i> Saúde+</h2>
+        </div>
+        <ul>
+            <li class="active" onclick="Router.navigate('cadastro')"><i class="ph ph-user-plus"></i> Cadastro</li>
+            <li onclick="Router.navigate('acompanhamento')"><i class="ph ph-calendar-check"></i> Acompanhamento</li>
+            <li onclick="Router.navigate('concluidos')"><i class="ph ph-check-circle"></i> Concluídos</li>
+            <li onclick="Router.navigate('faltosos')"><i class="ph ph-x-circle"></i> Faltosos</li>
+            <li onclick="Router.navigate('espera')"><i class="ph ph-hourglass"></i> Lista de Espera</li>
+            <li onclick="Router.navigate('relatorios')"><i class="ph ph-chart-line-up"></i> Relatórios</li> 
+            <li onclick="Router.navigate('armazenamento')"><i class="ph ph-hard-drives"></i> Armazenamento</li>
+            <li onclick="Router.navigate('logout')" style="margin-top:auto; border-top:1px solid #eee"><i class="ph ph-sign-out"></i> Sair</li>
+        </ul>
+    </nav>
 
-            <ul>
-                <li class="active" onclick="Router.navigate('cadastro')"><i class="ph ph-user-plus"></i> Cadastro</li>
-                <li onclick="Router.navigate('acompanhamento')"><i class="ph ph-calendar-check"></i> Acompanhamento</li>
-                <li onclick="Router.navigate('concluidos')"><i class="ph ph-check-circle"></i> Concluídos</li>
-                <li onclick="Router.navigate('faltosos')"><i class="ph ph-x-circle"></i> Faltosos</li>
-                <li onclick="Router.navigate('espera')"><i class="ph ph-hourglass"></i> Lista de Espera</li>
-                <li onclick="Router.navigate('relatorios')"><i class="ph ph-chart-line-up"></i> Relatórios</li> 
-                <li onclick="Router.navigate('armazenamento')"><i class="ph ph-hard-drives"></i> Armazenamento</li>
-                <li onclick="Router.navigate('logout')" style="margin-top:auto; border-top:1px solid #eee"><i class="ph ph-sign-out"></i> Sair</li>
-            </ul>
-        </nav>
-
-        <main class="content">
-            
-            <section id="cadastro" class="module active">
-                <header>
-                    <h1>Novo Atendimento</h1>
-                    <p>Preencha os dados do paciente e do procedimento.</p>
-                </header>
-                <form id="formCadastro">
-                    <input type="hidden" id="editId">
-                    <div class="card">
-                        <h3><i class="ph ph-user"></i> Dados do Paciente</h3>
-                        <div class="grid-2">
-                            <div class="input-group">
-                                <label>Nome Completo</label>
-                                <input type="text" id="nomePaciente" oninput="CadastroModule.buscarPaciente(this.value)" required>
-                                <div id="sugestoesPaciente" class="autocomplete-list"></div>
-                            </div>
-                            <div class="input-group">
-                                <label>Data de Nascimento</label>
-                                <input type="date" id="dataNascimento" required>
-                            </div>
-                            <div class="input-group">
-                                <label>Endereço</label>
-                                <input type="text" id="endereco" required>
-                            </div>
-                            <div class="input-group">
-                                <label>Contato</label>
-                                <input type="tel" id="contato" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="ph ph-clipboard-text"></i> Dados do Procedimento</h3>
-                        <div class="grid-3">
-                            <div class="input-group" style="grid-column: span 1;">
-                                <label>Nome do Procedimento</label>
-                                <div style="display: flex; gap: 5px;">
-                                    <select id="procedimento" class="select-procedimento" required>
-                                        <option value="">Selecione...</option>
-                                    </select>
-                                    <button type="button" class="btn-primary" onclick="ProcedimentosDB.adicionarNovoViaInterface()" title="Adicionar Novo">+</button>
-                                </div>
-                            </div>
-                            
-                            <div class="input-group"><label>Data Recebimento</label><input type="date" id="dataRecebimento"></div>
-                            <div class="input-group"><label>Data Solicitação</label><input type="date" id="dataSolicitacao"></div>
-                            <div class="input-group"><label>Data da Marcação (Sistema)</label><input type="date" id="dataMarcacao"></div>
-                            <div class="input-group">
-                                <label style="color: var(--primary); font-weight: bold;">Data para qual foi marcado</label>
-                                <input type="date" id="dataProcedimento"> 
-                            </div>
-                            <div class="input-group">
-                                <label>Tipo de Marcação</label>
-                                <select id="tipoMarcacao" required>
-                                    <option value="SUS">SUS</option>
-                                    <option value="CONSORCIO">Consórcio</option>
-                                    <option value="PARTICULAR">Particular</option>
-                                    <option value="DESCONTO">Desconto</option>
-                                </select>
-                            </div>
-                            <div class="input-group checkbox-group">
-                                <input type="checkbox" id="isRetorno">
-                                <label for="isRetorno">É Retorno?</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="actions">
-                        <button type="button" class="btn-secondary" onclick="CadastroModule.limparFormulario()">Limpar</button>
-                        <button type="submit" class="btn-primary">Salvar Cadastro</button>
-                    </div>
-                </form>
-            </section>
-
-            <section id="acompanhamento" class="module">
-                <header><h1>Acompanhamento</h1><p>Confirmação de presença.</p></header>
-                <div class="filters">
-                    <div class="filter-group"><label>De:</label><input type="date" id="filtroAcompInicio"></div>
-                    <div class="filter-group"><label>Até:</label><input type="date" id="filtroAcompFim"></div>
-                    <div class="filter-group">
-                        <label>Procedimento:</label>
-                        <select id="filtroAcompProcedimento" class="select-filtro-proc"><option value="">Todos</option></select>
-                    </div>
-                    <div class="filter-group"><label>Tipo:</label><select id="filtroAcompTipo"><option value="">Todos</option><option value="SUS">SUS</option><option value="CONSORCIO">Consórcio</option><option value="PARTICULAR">Particular</option></select></div>
-                    <div class="filter-group checkbox"><label><input type="checkbox" id="filtroRetornoAcomp"> Só Retornos</label></div>
-                    <button class="btn-primary" onclick="AcompanhamentoModule.aplicarFiltros()">Filtrar</button>
-                </div>
-                <table class="tabela-dados">
-                    <thead><tr><th>Paciente</th><th>Procedimento</th><th>Marcado Para</th><th>Espera (Dias)</th><th>Ações</th></tr></thead>
-                    <tbody id="tabelaAcompanhamento"></tbody>
-                </table>
-            </section>
-
-            <section id="concluidos" class="module">
-                <header><h1>Procedimentos Concluídos</h1></header>
-                <div class="filters">
-                    <div class="filter-group"><label>De:</label><input type="date" id="filtroDataConcluidoInicio"></div>
-                    <div class="filter-group"><label>Até:</label><input type="date" id="filtroDataConcluidoFim"></div>
-                    <div class="filter-group">
-                    <label>Procedimento:</label>
-                    <select id="filtroConcluidoProcedimento" class="select-filtro-proc">
-                        <option value="">Todos</option>
-                    </select>
-                </div>
-            
-                <div class="filter-group">
-                    <label>Tipo:</label>
-                    <select id="filtroConcluidoTipo">
-                        <option value="">Todos</option>
-                        <option value="SUS">SUS</option>
-                        <option value="CONSORCIO">Consórcio</option>
-                        <option value="PARTICULAR">Particular</option>
-                        <option value="DESCONTO">Desconto</option>
-                    </select>
-                </div>
-            
-                <div class="filter-group checkbox">
-                    <label>
-                        <input type="checkbox" id="filtroRetornoConcluido">
-                        Só Retornos
-                    </label>
-                </div>
-                    <button class="btn-primary" onclick="ConcluidosModule.aplicarFiltros()">Filtrar</button>
-                </div>
-                <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Data Realizado</th><th>Ações</th></tr></thead><tbody id="tabelaConcluidos"></tbody></table>
-            </section>
-
-            <section id="faltosos" class="module">
-                <header><h1>Pacientes Faltosos</h1></header>
-                <div class="filters">
-                    <div class="filter-group"><label>De:</label><input type="date" id="filtroDataFaltosoInicio"></div>
-                    <div class="filter-group"><label>Até:</label><input type="date" id="filtroDataFaltosoFim"></div>
-                    <div class="filter-group">
-                  <label>Procedimento:</label>
-                  <select id="filtroFaltosoProcedimento" class="select-filtro-proc">
-                    <option value="">Todos</option>
-                  </select>
-                </div>
-
-                <div class="filter-group">
-                  <label>Tipo:</label>
-                  <select id="filtroTipoFaltoso">
-                    <option value="">Todos</option>
-                    <option value="SUS">SUS</option>
-                    <option value="CONSORCIO">Consórcio</option>
-                    <option value="PARTICULAR">Particular</option>
-                    <option value="DESCONTO">Desconto</option>
-                  </select>
-                </div>
-                
-                <div class="filter-group checkbox">
-                  <label><input type="checkbox" id="filtroRetornoFaltoso"> Só Retornos</label>
-                </div>
-
-                    <button class="btn-primary" onclick="FaltososModule.aplicarFiltros()">Filtrar</button>
-                </div>
-                <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Justificativa</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaFaltosos"></tbody></table>
-            </section>
-
-            <section id="espera" class="module">
-                <div id="alertaEspera" class="alert-box-container"></div>
-                <header><h1>Lista de Espera</h1></header>
-                <div class="filters">
-                    <div class="filter-group"><label>De:</label><input type="date" id="filtroEsperaInicio"></div>
-                    <div class="filter-group"><label>Até:</label><input type="date" id="filtroEsperaFim"></div>
-                    <div class="filter-group">
-                      <label>Procedimento:</label>
-                      <select id="filtroEsperaProcedimento" class="select-filtro-proc">
-                        <option value="">Todos</option>
-                      </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                      <label>Tipo:</label>
-                      <select id="filtroEsperaTipo">
-                        <option value="">Todos</option>
-                        <option value="SUS">SUS</option>
-                        <option value="CONSORCIO">Consórcio</option>
-                        <option value="PARTICULAR">Particular</option>
-                        <option value="DESCONTO">Desconto</option>
-                      </select>
-                    </div>
-                    
-                    <div class="filter-group checkbox">
-                      <label><input type="checkbox" id="filtroRetornoEspera"> Só Retornos</label>
-                    </div>
-                    
-                    <button class="btn-primary" onclick="EsperaModule.aplicarFiltros()">Filtrar</button>
-                </div>
-                <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Falta</th><th>Dias Espera</th><th>Ações</th></tr></thead><tbody id="tabelaEspera"></tbody></table>
-            </section>
-
-            <section id="relatorios" class="module">
-                <header><h1>Relatórios e Estatísticas</h1></header>
-                <div class="filters">
-                    <div class="filter-group"><label>Início:</label><input type="date" id="filtroRelatorioInicio" onchange="RelatoriosModule.atualizarTudo()"></div>
-                    <div class="filter-group"><label>Fim:</label><input type="date" id="filtroRelatorioFim" onchange="RelatoriosModule.atualizarTudo()"></div>
-                    <button class="btn-danger" onclick="RelatoriosModule.baixarPDF()"><i class="ph ph-file-pdf"></i> PDF</button>
-                </div>
-                <div class="dashboard-grid">
-                    <div class="dash-card blue"><div class="dash-info"><h3 id="dashMarcados">0</h3><p>Marcados</p></div></div>
-                    <div class="dash-card green"><div class="dash-info"><h3 id="dashConcluidos">0</h3><p>Concluídos</p></div></div>
-                    <div class="dash-card red"><div class="dash-info"><h3 id="dashFaltosos">0</h3><p>Faltosos</p></div></div>
-                    <div class="dash-card orange"><div class="dash-info"><h3 id="dashEspera">0</h3><p>Lista de Espera</p></div></div>
-                    <div class="dash-card purple"><div class="dash-info"><h3 id="dashSolicitacoes">0</h3><p>Solicitações Abertas</p></div></div>
-                </div>
+    <main class="content">
+        <section id="cadastro" class="module active">
+            <header>
+                <h1>Novo Atendimento</h1>
+                <p>Preencha os dados do paciente e do procedimento.</p>
+            </header>
+            <form id="formCadastro">
+                <input type="hidden" id="editId">
                 <div class="card">
-                    <h3>Detalhamento de Concluídos</h3>
-                    <div id="gridProcedimentosConcluidos" class="grid-cards-procedimentos" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
-                 </div>
-                <div class="card" style="margin-top: 30px;">
-                    <h3>Histórico do Paciente</h3>
-                    <div class="input-group"><input type="text" id="buscaHistorico" placeholder="Pesquisar Paciente..." oninput="RelatoriosModule.buscarPaciente(this.value)"></div>
-                    <div id="sugestoesHistorico" class="autocomplete-list"></div>
-                    <div id="containerHistorico" style="margin-top: 20px; display: none;">
-                        <h4>Histórico de: <span id="nomePacienteHistorico"></span></h4>
-                        <table class="tabela-dados"><tbody id="tabelaHistorico"></tbody></table>
+                    <h3><i class="ph ph-user"></i> Dados do Paciente</h3>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>Nome Completo</label>
+                            <input type="text" id="nomePaciente" oninput="CadastroModule.buscarPaciente(this.value)" required autocomplete="off">
+                            <div id="sugestoesPaciente" class="autocomplete-list"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>Data de Nascimento</label>
+                            <input type="date" id="dataNascimento" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Endereço</label>
+                            <input type="text" id="endereco" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Contato</label>
+                            <input type="tel" id="contato" required>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <section id="armazenamento" class="module">
-                <header><h1>Gestão de Dados (Nuvem)</h1></header>
-                <div class="storage-actions">
-                    <button class="btn-primary" onclick="StorageModule.baixarCSV()"><i class="ph ph-download"></i> Baixar CSV (Backup)</button>
-                    <label class="btn-secondary btn-file">
-                        <i class="ph ph-upload"></i> Importar CSV
-                        <input type="file" id="fileUpload" accept=".csv" onchange="StorageModule.importarCSV(this)">
-                    </label>
-                    <button class="btn-danger" onclick="StorageModule.limparTudo()"><i class="ph ph-trash"></i> Limpar Tudo (Admin)</button>
+                <div class="card">
+                    <h3><i class="ph ph-clipboard-text"></i> Dados do Procedimento</h3>
+                    <div class="grid-3">
+                        <div class="input-group" style="grid-column: span 1;">
+                            <label>Nome do Procedimento</label>
+                            <div style="display: flex; gap: 5px;">
+                                <select id="procedimento" class="select-procedimento" required>
+                                    <option value="">Carregando...</option>
+                                </select>
+                                <button type="button" class="btn-primary" onclick="ProcedimentosDB.adicionarNovoViaInterface()" title="Adicionar Novo">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group"><label>Data Recebimento</label><input type="date" id="dataRecebimento"></div>
+                        <div class="input-group"><label>Data Solicitação</label><input type="date" id="dataSolicitacao"></div>
+                        <div class="input-group"><label>Data da Marcação (Sistema)</label><input type="date" id="dataMarcacao"></div>
+                        <div class="input-group">
+                            <label style="color: var(--primary); font-weight: bold;">Data para qual foi marcado</label>
+                            <input type="date" id="dataProcedimento"> 
+                        </div>
+                        <div class="input-group">
+                            <label>Tipo de Marcação</label>
+                            <select id="tipoMarcacao" required>
+                                <option value="SUS">SUS</option>
+                                <option value="CONSORCIO">Consórcio</option>
+                                <option value="PARTICULAR">Particular</option>
+                                <option value="DESCONTO">Desconto</option>
+                            </select>
+                        </div>
+                        <div class="input-group checkbox-group">
+                            <input type="checkbox" id="isRetorno">
+                            <label for="isRetorno">É Retorno?</label>
+                        </div>
+                    </div>
                 </div>
-                <div class="dashboard-storage" style="text-align:center; margin-top:20px;">
-                    <p>Seus dados estão sincronizados com o Supabase.</p>
-                </div>
-            </section>
-        </main>
-    </div>
 
-    <div id="modalJustificativa" class="modal hidden">
-        <div class="modal-content">
-            <h3>Justificativa</h3>
-            <textarea id="textoJustificativa" placeholder="Motivo..." style="width:100%; height:100px;"></textarea>
-            <div class="actions">
-                <button class="btn-secondary" onclick="AcompanhamentoModule.fecharModal()">Cancelar</button>
-                <button class="btn-danger" onclick="AcompanhamentoModule.confirmarFalta(false)">Sem Justificativa</button>
-                <button class="btn-primary" onclick="AcompanhamentoModule.confirmarFalta(true)">Salvar</button>
+                <div class="actions">
+                    <button type="button" class="btn-secondary" onclick="CadastroModule.limparFormulario()">Limpar</button>
+                    <button type="submit" class="btn-primary">Salvar Cadastro</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="acompanhamento" class="module">
+            <header><h1>Acompanhamento</h1><p>Confirmação de presença.</p></header>
+            <div class="filters">
+                <div class="filter-group"><label>De:</label><input type="date" id="filtroAcompInicio"></div>
+                <div class="filter-group"><label>Até:</label><input type="date" id="filtroAcompFim"></div>
+                <div class="filter-group">
+                    <label>Procedimento:</label>
+                    <select id="filtroAcompProcedimento" class="select-filtro-proc"><option value="">Todos</option></select>
+                </div>
+                <button class="btn-primary" onclick="AcompanhamentoModule.aplicarFiltros()">Filtrar</button>
             </div>
-        </div>
-    </div>
-    
-    <div id="modalDetalhes" class="modal hidden">
-        <div class="modal-content">
-            <h3>Detalhes</h3>
-            <div id="detalhesConteudo"></div>
-            <button class="btn-primary" onclick="document.getElementById('modalDetalhes').classList.add('hidden')" style="margin-top:10px;">Fechar</button>
-        </div>
-    </div>
+            <table class="tabela-dados">
+                <thead><tr><th>Paciente</th><th>Procedimento</th><th>Marcado Para</th><th>Espera</th><th>Ações</th></tr></thead>
+                <tbody id="tabelaAcompanhamento"></tbody>
+            </table>
+        </section>
 
-    <div id="modalListaProcedimento" class="modal hidden">
+        <section id="concluidos" class="module">
+            <header><h1>Procedimentos Concluídos</h1></header>
+            <div class="filters">
+                <div class="filter-group"><label>De:</label><input type="date" id="filtroDataConcluidoInicio"></div>
+                <div class="filter-group"><label>Até:</label><input type="date" id="filtroDataConcluidoFim"></div>
+                <div class="filter-group">
+                    <label>Procedimento:</label>
+                    <select id="filtroConcluidoProcedimento" class="select-filtro-proc"><option value="">Todos</option></select>
+                </div>
+                <button class="btn-primary" onclick="ConcluidosModule.aplicarFiltros()">Filtrar</button>
+            </div>
+            <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Realizado Em</th><th>Ações</th></tr></thead><tbody id="tabelaConcluidos"></tbody></table>
+        </section>
+
+        <section id="faltosos" class="module">
+            <header><h1>Pacientes Faltosos</h1></header>
+            <div class="filters">
+                <div class="filter-group"><label>De:</label><input type="date" id="filtroDataFaltosoInicio"></div>
+                <div class="filter-group"><label>Até:</label><input type="date" id="filtroDataFaltosoFim"></div>
+                <div class="filter-group">
+                    <label>Procedimento:</label>
+                    <select id="filtroFaltosoProcedimento" class="select-filtro-proc"><option value="">Todos</option></select>
+                </div>
+                <button class="btn-primary" onclick="FaltososModule.aplicarFiltros()">Filtrar</button>
+            </div>
+            <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Justificativa</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaFaltosos"></tbody></table>
+        </section>
+
+        <section id="espera" class="module">
+            <div id="alertaEspera" class="alert-box-container"></div>
+            <header><h1>Lista de Espera</h1></header>
+            <div class="filters">
+                <div class="filter-group"><label>Procedimento:</label>
+                    <select id="filtroEsperaProcedimento" class="select-filtro-proc"><option value="">Todos</option></select>
+                </div>
+                <button class="btn-primary" onclick="EsperaModule.aplicarFiltros()">Filtrar</button>
+            </div>
+            <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Status</th><th>Dias Espera</th><th>Ações</th></tr></thead><tbody id="tabelaEspera"></tbody></table>
+        </section>
+
+        <section id="relatorios" class="module">
+            <header><h1>Dashboard Analítico</h1></header>
+            <div class="filters">
+                <div class="filter-group"><label>Início:</label><input type="date" id="filtroRelatorioInicio" onchange="RelatoriosModule.atualizarTudo()"></div>
+                <div class="filter-group"><label>Fim:</label><input type="date" id="filtroRelatorioFim" onchange="RelatoriosModule.atualizarTudo()"></div>
+                <button class="btn-danger" onclick="RelatoriosModule.baixarPDF()"><i class="ph ph-file-pdf"></i> PDF</button>
+            </div>
+            
+            <div id="dashboardGridInject" class="dashboard-grid"></div>
+
+            <div class="card">
+                <h3>Detalhamento de Concluídos</h3>
+                <div id="gridProcedimentosConcluidos" class="grid-cards-procedimentos" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+             </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Histórico do Paciente</h3>
+                <div class="input-group"><input type="text" id="buscaHistorico" placeholder="Pesquisar Paciente..." oninput="RelatoriosModule.buscarPaciente(this.value)"></div>
+                <div id="sugestoesHistorico" class="autocomplete-list"></div>
+                <div id="containerHistorico" style="margin-top: 20px; display: none;">
+                    <h4>Histórico de: <span id="nomePacienteHistorico"></span></h4>
+                    <table class="tabela-dados"><tbody id="tabelaHistorico"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <section id="armazenamento" class="module">
+            <header><h1>Gestão de Dados (Nuvem)</h1></header>
+            <div class="storage-actions">
+                <button class="btn-primary" onclick="StorageModule.baixarCSV()"><i class="ph ph-download"></i> Backup CSV</button>
+                <label class="btn-secondary btn-file">
+                    <i class="ph ph-upload"></i> Importar CSV
+                    <input type="file" id="fileUpload" accept=".csv" onchange="StorageModule.importarCSV(this)">
+                </label>
+                <button class="btn-danger" onclick="StorageModule.limparTudo()"><i class="ph ph-trash"></i> Resetar Banco</button>
+            </div>
+            <div class="dashboard-storage" style="text-align:center; margin-top:20px;">
+                <h3 id="storagePercent" style="font-size: 2rem;">0 reg.</h3>
+                <p>Registros seguros no Supabase</p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div id="modalJustificativa" class="modal hidden">
+    <div class="modal-content">
+        <h3>Justificativa da Falta</h3>
+        <textarea id="textoJustificativa" placeholder="Informe o motivo..." style="width:100%; height:100px; padding:10px; margin:10px 0;"></textarea>
+        <div class="actions">
+            <button class="btn-secondary" onclick="AcompanhamentoModule.fecharModal()">Cancelar</button>
+            <button class="btn-danger" onclick="AcompanhamentoModule.confirmarFalta(false)">Sem Justificativa</button>
+            <button class="btn-primary" onclick="AcompanhamentoModule.confirmarFalta(true)">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalhes" class="modal hidden">
+    <div class="modal-content">
+        <h3>Detalhes do Agendamento</h3>
+        <div id="detalhesConteudo"></div>
+        <button class="btn-primary" onclick="document.getElementById('modalDetalhes').classList.add('hidden')" style="margin-top:20px; width:100%;">Fechar</button>
+    </div>
+</div>
+
+<div id="modalListaProcedimento" class="modal hidden">
     <div class="modal-content" style="width: 500px;">
-        <h3>Pacientes: <span id="tituloModalLista" style="color:var(--primary)"></span></h3>
-        <p style="font-size:0.85rem; margin-bottom:10px;">Período selecionado nos relatórios.</p>
+        <h3><span id="tituloModalLista" style="color:var(--primary)"></span></h3>
         <div style="max-height: 300px; overflow-y: auto;">
             <table class="tabela-dados">
                 <thead><tr><th>Data</th><th>Paciente</th></tr></thead>
@@ -323,11 +253,7 @@
         </div>
     </div>
 </div>
-    <script src="script.js"></script>
+
+<script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
