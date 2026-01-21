@@ -25,29 +25,65 @@ const PROCEDIMENTOS_PADRAO = [
 ];
 
 // --- MÓDULO DE AUTENTICAÇÃO ---
+// --- MÓDULO DE AUTENTICAÇÃO (ATUALIZADO) ---
 const Auth = {
+    mode: 'login', // 'login' ou 'register'
+
     init: async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             document.getElementById('loginOverlay').style.display = 'none';
-            await DB.init(); // Carrega dados iniciais
+            await DB.init();
         } else {
             document.getElementById('loginOverlay').style.display = 'flex';
         }
     },
+
+    // Alterna visualmente entre Login e Cadastro
+    toggleMode: () => {
+        const titulo = document.getElementById('tituloAuth');
+        const btn = document.getElementById('btnAuthMain');
+        const txt = document.getElementById('txtAlternar');
+        const link = document.getElementById('btnAlternar');
+        const msg = document.getElementById('msgLogin');
+
+        msg.innerText = ''; // Limpa erros
+
+        if (Auth.mode === 'login') {
+            Auth.mode = 'register';
+            titulo.innerText = "Novo Cadastro";
+            btn.innerText = "Cadastrar Usuário";
+            btn.onclick = Auth.register; // Muda a ação do botão
+            txt.innerText = "Já tem conta?";
+            link.innerText = "Fazer Login";
+        } else {
+            Auth.mode = 'login';
+            titulo.innerText = "Acesso ao Sistema";
+            btn.innerText = "Entrar";
+            btn.onclick = Auth.login; // Muda a ação do botão
+            txt.innerText = "Não tem acesso?";
+            link.innerText = "Criar conta";
+        }
+    },
+
     login: async () => {
         const email = document.getElementById('emailLogin').value;
         const password = document.getElementById('senhaLogin').value;
-        const btn = document.querySelector('#loginOverlay button');
+        const btn = document.getElementById('btnAuthMain');
         const msg = document.getElementById('msgLogin');
 
-        btn.innerText = 'Entrando...';
+        if(!email || !password) {
+            msg.innerText = "Preencha e-mail e senha.";
+            return;
+        }
+
+        btn.innerText = 'Verificando...';
         btn.disabled = true;
 
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
-            msg.innerText = "Erro: " + error.message;
+            msg.innerText = "Erro: " + error.message; // Ex: Senha incorreta
             btn.innerText = 'Entrar';
             btn.disabled = false;
         } else {
@@ -55,6 +91,44 @@ const Auth = {
             await DB.init();
         }
     },
+
+    register: async () => {
+        const email = document.getElementById('emailLogin').value;
+        const password = document.getElementById('senhaLogin').value;
+        const btn = document.getElementById('btnAuthMain');
+        const msg = document.getElementById('msgLogin');
+
+        if(!email || !password) {
+            msg.innerText = "Preencha e-mail e senha.";
+            return;
+        }
+        if(password.length < 6) {
+            msg.innerText = "A senha deve ter no mínimo 6 caracteres.";
+            return;
+        }
+
+        btn.innerText = 'Cadastrando...';
+        btn.disabled = true;
+
+        // Tenta criar o usuário
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            msg.innerText = "Erro: " + error.message;
+            btn.innerText = 'Cadastrar Usuário';
+            btn.disabled = false;
+        } else {
+            // Sucesso!
+            alert("Usuário cadastrado com sucesso! Verifique seu e-mail se necessário ou faça login.");
+            // Volta para a tela de login automaticamente
+            Auth.toggleMode(); 
+            btn.disabled = false;
+        }
+    },
+
     logout: async () => {
         await supabase.auth.signOut();
         window.location.reload();
