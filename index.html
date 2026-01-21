@@ -149,9 +149,29 @@
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroDataConcluidoInicio"></div>
                     <div class="filter-group"><label>Até:</label><input type="date" id="filtroDataConcluidoFim"></div>
                     <div class="filter-group">
-                        <label>Procedimento:</label>
-                        <select id="filtroConcluidoProcedimento" class="select-filtro-proc"><option value="">Todos</option></select>
-                    </div>
+                    <label>Procedimento:</label>
+                    <select id="filtroConcluidoProcedimento" class="select-filtro-proc">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            
+                <div class="filter-group">
+                    <label>Tipo:</label>
+                    <select id="filtroConcluidoTipo">
+                        <option value="">Todos</option>
+                        <option value="SUS">SUS</option>
+                        <option value="CONSORCIO">Consórcio</option>
+                        <option value="PARTICULAR">Particular</option>
+                        <option value="DESCONTO">Desconto</option>
+                    </select>
+                </div>
+            
+                <div class="filter-group checkbox">
+                    <label>
+                        <input type="checkbox" id="filtroRetornoConcluido">
+                        Só Retornos
+                    </label>
+                </div>
                     <button class="btn-primary" onclick="ConcluidosModule.aplicarFiltros()">Filtrar</button>
                 </div>
                 <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Data Realizado</th><th>Ações</th></tr></thead><tbody id="tabelaConcluidos"></tbody></table>
@@ -306,6 +326,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
