@@ -3,8 +3,8 @@
  */
 
 // --- CONFIGURAÇÃO SUPABASE ---
-const SUPABASE_URL = 'https://hjxxeinmndqvzoqkbpeg.supabase.co'; // COLOQUE SUA URL AQUI
-const SUPABASE_KEY = 'eyJ...'; // COLOQUE SUA CHAVE ANON AQUI (AQUELA GIGANTE)
+const SUPABASE_URL = 'https://zzvzxvejoargfqrlmxfq.supabase.co'; // COLOQUE SUA URL AQUI
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6dnp4dmVqb2FyZ2ZxcmxteGZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTU5ODIsImV4cCI6MjA4NDU5MTk4Mn0._ew5X-XraLq1PxHIn413KrwdcwTMSMg1pOSvm0gaZ4o'; // COLOQUE SUA CHAVE ANON AQUI (AQUELA GIGANTE)
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // CACHE GLOBAL (Para manter a velocidade e lógica do sistema antigo)
@@ -443,3 +443,4 @@ const Router = {
 // INIT
 document.getElementById('formCadastro').addEventListener('submit', CadastroModule.salvar);
 window.onload = Auth.init;
+
