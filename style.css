@@ -51,9 +51,10 @@ body {
 }
 
 .sidebar .logo img {
-  width: 160px;
-  display: block;
-  margin: 20px auto;
+  max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 
@@ -212,3 +213,4 @@ button, .btn-file {
 }
 
 .proc-card-icon:hover { background: rgba(255,255,255,0.4); transform: scale(1.1); }
+
