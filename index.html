@@ -11,23 +11,42 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0056b3; z-index:9999; display:flex; justify-content:center; align-items:center;">
-    <div class="card" style="width: 350px; text-align: center;">
-        <img src="logo2.png" alt="Logo" style="height: 60px; margin-bottom: 20px;">
-        <h2 style="margin-bottom: 20px; color: var(--primary);">Acesso ao Sistema</h2>
+<div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; 
+     background: url('https://www.barradesaomiguel.pb.gov.br/storage/content/noticias/geral/2244/destaque/6904a6b804495j0we0_larg.jpeg') no-repeat center center; 
+     background-size: cover; 
+     z-index:9999; display:flex; justify-content:center; align-items:center;">
+    
+    <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: rgba(0, 86, 179, 0.85);"></div>
+
+    <div class="card" style="width: 400px; text-align: center; position:relative; z-index:2; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+        <img src="logo2.png" alt="Logo" style="height: 70px; margin-bottom: 20px;">
+        
+        <h2 id="tituloAuth" style="margin-bottom: 20px; color: var(--primary);">Acesso ao Sistema</h2>
+        
         <div class="input-group">
-            <label>E-mail</label>
-            <input type="email" id="emailLogin" placeholder="seu@email.com">
+            <label style="text-align: left; display: block;">E-mail</label>
+            <input type="email" id="emailLogin" placeholder="nome@exemplo.com" style="padding: 12px;">
         </div>
+        
         <div class="input-group">
-            <label>Senha</label>
-            <input type="password" id="senhaLogin" placeholder="********">
+            <label style="text-align: left; display: block;">Senha</label>
+            <input type="password" id="senhaLogin" placeholder="********" style="padding: 12px;">
         </div>
-        <button class="btn-primary" style="width: 100%; justify-content: center; margin-top: 15px;" onclick="Auth.login()">Entrar</button>
-        <p id="msgLogin" style="color: red; margin-top: 10px; font-size: 0.9em;"></p>
+
+        <button id="btnAuthMain" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 20px; padding: 12px; font-size: 1rem;" onclick="Auth.login()">
+            Entrar
+        </button>
+
+        <p id="msgLogin" style="color: red; margin-top: 15px; font-size: 0.9em; min-height: 20px;"></p>
+
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; font-size: 0.9rem;">
+            <span id="txtAlternar">Não tem acesso?</span>
+            <a href="#" onclick="Auth.toggleMode()" style="color: var(--primary); font-weight: bold; text-decoration: none;">
+                <span id="btnAlternar">Criar conta</span>
+            </a>
+        </div>
     </div>
 </div>
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -370,4 +389,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
