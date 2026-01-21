@@ -161,6 +161,28 @@
                 <div class="filters">
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroDataFaltosoInicio"></div>
                     <div class="filter-group"><label>Até:</label><input type="date" id="filtroDataFaltosoFim"></div>
+                    <div class="filter-group">
+                  <label>Procedimento:</label>
+                  <select id="filtroFaltosoProcedimento" class="select-filtro-proc">
+                    <option value="">Todos</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label>Tipo:</label>
+                  <select id="filtroTipoFaltoso">
+                    <option value="">Todos</option>
+                    <option value="SUS">SUS</option>
+                    <option value="CONSORCIO">Consórcio</option>
+                    <option value="PARTICULAR">Particular</option>
+                    <option value="DESCONTO">Desconto</option>
+                  </select>
+                </div>
+                
+                <div class="filter-group checkbox">
+                  <label><input type="checkbox" id="filtroRetornoFaltoso"> Só Retornos</label>
+                </div>
+
                     <button class="btn-primary" onclick="FaltososModule.aplicarFiltros()">Filtrar</button>
                 </div>
                 <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Justificativa</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaFaltosos"></tbody></table>
@@ -172,6 +194,28 @@
                 <div class="filters">
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroEsperaInicio"></div>
                     <div class="filter-group"><label>Até:</label><input type="date" id="filtroEsperaFim"></div>
+                    <div class="filter-group">
+                      <label>Procedimento:</label>
+                      <select id="filtroEsperaProcedimento" class="select-filtro-proc">
+                        <option value="">Todos</option>
+                      </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                      <label>Tipo:</label>
+                      <select id="filtroEsperaTipo">
+                        <option value="">Todos</option>
+                        <option value="SUS">SUS</option>
+                        <option value="CONSORCIO">Consórcio</option>
+                        <option value="PARTICULAR">Particular</option>
+                        <option value="DESCONTO">Desconto</option>
+                      </select>
+                    </div>
+                    
+                    <div class="filter-group checkbox">
+                      <label><input type="checkbox" id="filtroRetornoEspera"> Só Retornos</label>
+                    </div>
+                    
                     <button class="btn-primary" onclick="EsperaModule.aplicarFiltros()">Filtrar</button>
                 </div>
                 <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Falta</th><th>Dias Espera</th><th>Ações</th></tr></thead><tbody id="tabelaEspera"></tbody></table>
@@ -261,5 +305,6 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
