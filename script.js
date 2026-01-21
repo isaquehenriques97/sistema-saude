@@ -30,40 +30,52 @@ const PROCEDIMENTOS_PADRAO = [
     "ENDOSCOPIA", "ESTUDO URODINAMICO", "COLONOSCOPIA"
 ];
 
-// --- MÓDULO DE AUTENTICAÇÃO E INICIALIZAÇÃO ---
+/*********************************
+ * AUTH
+ *********************************/
 const Auth = {
     init: async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
+        const { data } = await supabaseClient.auth.getSession();
+
+        if (data.session) {
             document.getElementById('loginOverlay').style.display = 'none';
-            await DB.sincronizar(); // Baixa os dados da nuvem
-            ProcedimentosDB.init(); // Inicializa procedimentos
-            Router.initModule(Router.current); // Renderiza a tela atual
+            await DB.sincronizar();
+            ProcedimentosDB.init();
+            Router.initModule(Router.current);
         } else {
             document.getElementById('loginOverlay').style.display = 'flex';
         }
     },
+
     login: async () => {
         const email = document.getElementById('emailLogin').value;
         const password = document.getElementById('senhaLogin').value;
         const btn = document.getElementById('btnAuthMain');
-        
-        btn.innerText = "Entrando...";
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        
+
+        btn.disabled = true;
+        btn.innerText = 'Entrando...';
+
+        const { error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
+
         if (error) {
-            document.getElementById('msgLogin').innerText = "Erro: " + error.message;
-            btn.innerText = "Entrar";
-        } else {
-            window.location.reload();
+            document.getElementById('msgLogin').innerText = error.message;
+            btn.disabled = false;
+            btn.innerText = 'Entrar';
+            return;
         }
+
+        location.reload();
     },
+
     logout: async () => {
-        await supabase.auth.signOut();
-        window.location.reload();
+        await supabaseClient.auth.signOut();
+        location.reload();
     }
 };
+
 
 // --- BANCO DE DADOS (PONTE ENTRE APP ANTIGO E SUPABASE) ---
 const DB = {
@@ -114,7 +126,7 @@ const DB = {
 
     sincronizar: async () => {
         // Baixa tudo do Supabase
-        const { data, error } = await supabase.from('atendimentos').select('*');
+        const { data, error } = await supabaseClient.from('atendimentos').select('*');
         if (error) {
             console.error(error);
             alert("Erro de conexão com o banco.");
@@ -134,7 +146,7 @@ const DB = {
         // Remove ID para deixar o Supabase gerar, ou usa se for migração
         delete sqlData.id; 
         
-        const { error } = await supabase.from('atendimentos').insert([sqlData]);
+        const { error } = await supabaseClient.from('atendimentos').insert([sqlData]);
         if(error) alert("Erro ao salvar: " + error.message);
         
         await DB.sincronizar(); // Atualiza cache e UI
@@ -155,7 +167,7 @@ const DB = {
         };
 
         const sqlData = DB.converterParaSQL(itemAtualizado);
-        const { error } = await supabase.from('atendimentos').update(sqlData).eq('id', id);
+        const { error } = await supabaseClient.from('atendimentos').update(sqlData).eq('id', id);
         
         if(error) alert("Erro ao atualizar: " + error.message);
         
@@ -165,7 +177,7 @@ const DB = {
 
     delete: async (id) => {
         if (confirm("Tem certeza que deseja apagar permanentemente este registro (Nuvem)?")) {
-            const { error } = await supabase.from('atendimentos').delete().eq('id', id);
+            const { error } = await supabaseClient.from('atendimentos').delete().eq('id', id);
             if(error) alert("Erro ao excluir: " + error.message);
             await DB.sincronizar();
             Router.refreshCurrent();
@@ -176,7 +188,7 @@ const DB = {
         if(confirm("ATENÇÃO: ISSO APAGARÁ TODO O BANCO DE DADOS NA NUVEM!")){
             // Supabase não tem "delete all" simples sem where por segurança,
             // então deletamos onde ID não é nulo.
-            const { error } = await supabase.from('atendimentos').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            const { error } = await supabaseClient.from('atendimentos').delete().neq('id', '00000000-0000-0000-0000-000000000000');
             if(error) alert("Erro: " + error.message);
             await DB.sincronizar();
             Router.refreshCurrent();
@@ -815,8 +827,17 @@ const StorageModule = {
 
 // --- INICIALIZAÇÃO ---
 window.onload = () => {
-    document.getElementById('formCadastro').addEventListener('submit', CadastroModule.salvar);
+    document
+        .getElementById('btnAuthMain')
+        .addEventListener('click', Auth.login);
+
+    document
+        .getElementById('formCadastro')
+        ?.addEventListener('submit', CadastroModule.salvar);
+
     Auth.init();
 };
+
+
 
 
