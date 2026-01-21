@@ -4,7 +4,7 @@
 
 // --- CONFIGURAÇÃO SUPABASE ---
 const SUPABASE_URL = 'https://hjxxeinmndqvzoqkbpeg.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_mccotQ72Z6xLM22aDn3XmA_BMOZThGK';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqeHhlaW5tbmRxdnpvcWticGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTA2NDAsImV4cCI6MjA4NDU4NjY0MH0.s6PuNkE33h1fS_dPx6--PMfT7R1J1ld4wttNIYIhbP0';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Cache local para performance (espelho do banco)
@@ -1105,3 +1105,4 @@ window.onload = () => {
     // Configura UI
     Router.navigate('cadastro');
 };
+
