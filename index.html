@@ -246,6 +246,22 @@
         </div>
     </div>
 
+    <div id="modalListaProcedimento" class="modal hidden">
+    <div class="modal-content" style="width: 500px;">
+        <h3>Pacientes: <span id="tituloModalLista" style="color:var(--primary)"></span></h3>
+        <p style="font-size:0.85rem; margin-bottom:10px;">Período selecionado nos relatórios.</p>
+        <div style="max-height: 300px; overflow-y: auto;">
+            <table class="tabela-dados">
+                <thead><tr><th>Data</th><th>Paciente</th></tr></thead>
+                <tbody id="tabelaListaProcedimento"></tbody>
+            </table>
+        </div>
+        <div class="actions">
+            <button class="btn-primary" onclick="document.getElementById('modalListaProcedimento').classList.add('hidden')">Fechar</button>
+        </div>
+    </div>
+</div>
     <script src="script.js"></script>
 </body>
 </html>
+
