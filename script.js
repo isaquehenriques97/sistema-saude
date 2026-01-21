@@ -3,7 +3,7 @@
  */
 
 // --- CONFIGURAÇÃO SUPABASE ---
-const SUPABASE_URL = 'https://hjxxeinmndqvzoqkbpeg.supabase.co';
+const SUPABASE_URL = 'https://zzvzxvejoargfqrlmxfq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6dnp4dmVqb2FyZ2ZxcmxteGZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTU5ODIsImV4cCI6MjA4NDU5MTk4Mn0._ew5X-XraLq1PxHIn413KrwdcwTMSMg1pOSvm0gaZ4o';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -811,3 +811,4 @@ window.onload = () => {
     document.getElementById('formCadastro').addEventListener('submit', CadastroModule.salvar);
     Auth.init();
 };
+
