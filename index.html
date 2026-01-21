@@ -2,37 +2,34 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestão de Saúde</title>
+
+    <!-- SUPABASE V2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; 
-         background: #0056b3; z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div class="card" style="width: 400px; padding: 40px; background: white; border-radius: 8px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
-            <h2 style="margin-bottom: 20px; color: var(--primary);">Acesso ao Sistema</h2>
-            <div class="input-group" style="text-align: left; margin-bottom: 15px;">
-                <label>E-mail</label>
-                <input type="email" id="emailLogin" placeholder="admin@saude.com" style="width:100%; padding:10px;">
-            </div>
-            <div class="input-group" style="text-align: left; margin-bottom: 20px;">
-                <label>Senha</label>
-                <input type="password" id="senhaLogin" placeholder="********" style="width:100%; padding:10px;">
-            </div>
-            <button id="btnAuthMain" class="btn-primary" style="width: 100%;" onclick="Auth.login()">Entrar</button>
-            <p id="msgLogin" style="color: red; margin-top: 15px; font-size: 0.9em;"></p>
-            <div style="margin-top: 20px; font-size: 0.9rem;">
-                <a href="#" onclick="Auth.toggleMode()" id="toggleAuthBtn">Criar nova conta</a>
-            </div>
-        </div>
+<!-- LOGIN -->
+<div id="loginOverlay" style="position:fixed; inset:0; background:#0056b3; z-index:9999; display:flex; justify-content:center; align-items:center;">
+    <div class="card" style="width:400px; padding:40px;">
+        <h2>Acesso ao Sistema</h2>
+
+        <label>E-mail</label>
+        <input type="email" id="emailLogin">
+
+        <label>Senha</label>
+        <input type="password" id="senhaLogin">
+
+        <button id="btnAuthMain">Entrar</button>
+        <p id="msgLogin" style="color:red"></p>
     </div>
+</div>
 
     <div class="app-container">
         <nav class="sidebar">
@@ -264,4 +261,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
