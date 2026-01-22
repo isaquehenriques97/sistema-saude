@@ -155,13 +155,19 @@ const Render = {
  *************************************************/
 const UI = {
   toggleLogin(show) {
-    document.getElementById("loginOverlay").style.display =
-      show ? "flex" : "none";
+    const login = document.getElementById("loginOverlay");
+    const app = document.getElementById("appContainer");
 
-    document.getElementById("appContainer").style.display =
-      show ? "none" : "block";
+    if (!login || !app) {
+      console.error("loginOverlay ou appContainer não encontrados no DOM");
+      return;
+    }
+
+    login.style.display = show ? "flex" : "none";
+    app.style.display = show ? "none" : "block";
   }
 };
+
 
 /*************************************************
  * EVENTS — USUÁRIO
@@ -207,4 +213,5 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnAuthMain").onclick = () =>
     Auth.login(emailLogin.value, senhaLogin.value);
 });
+
 
