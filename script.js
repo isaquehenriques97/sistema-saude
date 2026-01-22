@@ -252,12 +252,25 @@ const DB = {
     // Puxa tudo da nuvem e atualiza o cache
     sync: async () => {
         try {
+
+          // LOG PARA DESCOBRIR O ERRO
+            console.log("Iniciando sync...");
+          
             const { data, error } = await supabaseClient
                 .from('atendimentos')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+                console.error("ERRO CRÍTICO SUPABASE:", error); // Isso vai aparecer vermelho no console
+                throw error;
+            }
+
+            console.log("Dados recebidos:", data); // Mostra o que veio
+
+            if (!data || data.length === 0) {
+                console.warn("Supabase retornou 0 dados. A tabela está vazia ou o nome está errado.");
+            }
 
             // Converte SQL -> App usando o Intermediário
             APP_CACHE = data.map(row => DataMapper.toApp(row));
@@ -1125,3 +1138,20 @@ document.querySelectorAll('.sidebar ul li').forEach(item => {
     });
 });
 
+// Função para o botão manual de atualizar
+window.ForcarSincronizacao = async () => {
+    const btn = document.querySelector('button[onclick="ForcarSincronizacao()"]');
+    if(btn) btn.innerText = "Carregando...";
+    
+    console.log("Tentando puxar dados do Supabase...");
+    const sucesso = await DB.sync();
+    
+    if(btn) btn.innerText = "🔄 Atualizar Dados";
+    
+    if (sucesso) {
+        alert("Dados atualizados com sucesso da nuvem!");
+        Router.refreshCurrent(); // Atualiza a tela atual
+    } else {
+        alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
+    }
+};
