@@ -23,6 +23,13 @@
         <input type="password" id="senhaLogin" placeholder="Sua Senha" />
         
         <button id="btnAuthMain" class="btn-primary" style="width: 100%; margin-top: 10px;">Entrar</button>
+        <button
+          class="btn-secondary"
+          style="width: 100%; margin-top: 10px;"
+          onclick="Auth.definirSenha()"
+        >
+          Primeiro acesso? Criar senha
+        </button>
         <p id="msgLogin" style="color: red; margin-top: 10px; font-size: 0.9em;"></p>
     </div>
 </div>
@@ -381,6 +388,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
