@@ -1,21 +1,3 @@
-const supabase = window.supabase.createClient(
-  'SUA_SUPABASE_URL',
-  'SUA_SUPABASE_ANON_KEY'
-);
-
-// FINALIZA LOGIN VIA CONVITE / MAGIC LINK
-supabase.auth.onAuthStateChange((event, session) => {
-  console.log(event);
-
-  if (event === 'SIGNED_IN' && session) {
-    document.getElementById('loginOverlay').style.display = 'none';
-  }
-
-  if (!session) {
-    document.getElementById('loginOverlay').style.display = 'flex';
-  }
-});
-
 /*************************************************
  * SISTEMA DE GESTÃO DE SAÚDE - CLOUD VERSION (SUPABASE)
  * Com padrão Adapter para manter compatibilidade com o código legado.
@@ -28,6 +10,18 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// FINALIZA LOGIN VIA CONVITE / MAGIC LINK
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  console.log(event);
+
+  if (event === 'SIGNED_IN' && session) {
+    document.getElementById('loginOverlay').style.display = 'none';
+  }
+
+  if (!session) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+});
 // ============================================================
 // 1. O INTERMEDIÁRIO (ADAPTER PATTERN)
 // Converte os dados do Supabase (SQL/Snake_case) para o App (Objeto/CamelCase) e vice-versa.
@@ -1005,6 +999,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
