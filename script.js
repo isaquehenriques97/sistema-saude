@@ -9,8 +9,6 @@ const supabaseClient = supabase.createClient(
   SUPABASE_KEY
 );
 
-
-
 /*************************************************
  * STATE — FONTE ÚNICA DA VERDADE
  *************************************************/
@@ -191,6 +189,52 @@ const Events = {
   }
 };
 
+/*************************************************
+ * AUTH CONTROLLER — SUPABASE
+ *************************************************/
+const Auth = {
+  async init() {
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (data.session) {
+      Auth.onLogin();
+    } else {
+      Auth.onLogout();
+    }
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        Auth.onLogin();
+      } else {
+        Auth.onLogout();
+      }
+    });
+  },
+
+  async login(email, password) {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+  },
+
+  async logout() {
+    await supabaseClient.auth.signOut();
+  },
+
+  onLogin() {
+    document.getElementById("loginOverlay").style.display = "none";
+    App.start(); // 🚨 IMPORTANTE
+  },
+
+  onLogout() {
+    document.getElementById("loginOverlay").style.display = "flex";
+  }
+};
 
 /*************************************************
  * INIT
@@ -206,4 +250,24 @@ const App = {
   }
 };
 
-document.addEventListener("DOMContentLoaded", App.init);
+document.addEventListener("DOMContentLoaded", () => {
+  Auth.init();
+
+  document.getElementById("btnAuthMain").onclick = () => {
+    const email = document.getElementById("emailLogin").value;
+    const senha = document.getElementById("senhaLogin").value;
+    Auth.login(email, senha);
+  };
+});
+
+const App = {
+  async start() {
+    await DataSync.carregar();
+    Render.tudo();
+
+    document
+      .getElementById("formCadastro")
+      ?.addEventListener("submit", Events.salvarCadastro);
+  }
+};
+
