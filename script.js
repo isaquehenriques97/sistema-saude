@@ -11,17 +11,21 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // FINALIZA LOGIN VIA CONVITE / MAGIC LINK
+// CONTROLE GLOBAL DE AUTENTICAÇÃO
 supabaseClient.auth.onAuthStateChange((event, session) => {
-  console.log(event);
+  console.log('Auth event:', event);
+
+  const loginOverlay = document.getElementById('loginOverlay');
 
   if (session) {
-    document.getElementById('loginOverlay').style.display = 'none';
-  }
-
-  if (!session) {
-    document.getElementById('loginOverlay').style.display = 'flex';
+    // Usuário autenticado (convite ou login normal)
+    loginOverlay.style.display = 'none';
+  } else {
+    // Não autenticado
+    loginOverlay.style.display = 'flex';
   }
 });
+
 // ============================================================
 // 1. O INTERMEDIÁRIO (ADAPTER PATTERN)
 // Converte os dados do Supabase (SQL/Snake_case) para o App (Objeto/CamelCase) e vice-versa.
@@ -98,9 +102,19 @@ const Auth = {
         }
 
         // Listener para mudanças de auth (ex: logout em outra aba)
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_OUT') location.reload();
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                Auth.user = session.user;
+                document.getElementById('loginOverlay').style.display = 'none';
+                await DB.init();
+                Auth.renderLogoutButton();
+            }
+        
+            if (event === 'SIGNED_OUT') {
+                location.reload();
+            }
         });
+
     },
 
     login: async () => {
@@ -123,7 +137,7 @@ const Auth = {
             btn.disabled = false;
             btn.innerText = 'Entrar';
         } else {
-            location.reload(); // Recarrega para limpar estados antigos
+            
         }
     },
 
@@ -999,6 +1013,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
