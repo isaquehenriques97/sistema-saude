@@ -20,36 +20,46 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// FINALIZA LOGIN VIA CONVITE / MAGIC LINK
-// CONTROLE GLOBAL DE AUTENTICAÇÃO
-// CONTROLE GLOBAL DE AUTENTICAÇÃO
+// Variável de controle para saber se estamos em modo de recuperação/convite
+let isRecoveryMode = false;
+
+// --- 2. LISTENER GLOBAL DE AUTENTICAÇÃO ---
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    
-    // 1. Se o usuário deslogar, recarrega a página para limpar a memória
-    if (event === 'SIGNED_OUT') {
-        location.reload();
-        return;
+    console.log("Evento Auth:", event); // Para depuração
+
+    // CASO 1: Usuário clicou no link de "Recuperar Senha" ou "Convite"
+    if (event === 'PASSWORD_RECOVERY') {
+        isRecoveryMode = true;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('modalCriarSenha').classList.remove('hidden');
+        return; 
     }
 
-    // 2. Usuário Logado
+    // CASO 2: Usuário fez Login (ou o link de convite logou ele automaticamente)
     if (event === 'SIGNED_IN' && session) {
         Auth.user = session.user;
-        
-        // 👉 FLUXO DE CONVITE (CRIAÇÃO DE SENHA)
-        // Se a variável global for true, mostramos o modal de senha e NÃO iniciamos o banco.
-        if (IS_INVITE_LINK) {
-            console.log("Fluxo de convite detectado. Aguardando criação de senha.");
+
+        // Se o Supabase logou via link de convite/recuperação, forçamos a tela de senha
+        // Verificamos se a URL tem "type=recovery" ou "type=invite" antes que o Supabase limpe
+        const hash = window.location.hash;
+        if (isRecoveryMode || hash.includes('type=recovery') || hash.includes('type=invite')) {
+            isRecoveryMode = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('modalCriarSenha').classList.remove('hidden');
-            return; // ⚠️ PARE AQUI: O usuário ainda precisa definir a senha e relogar.
+            return; // ⚠️ PARE AQUI. Não carregue o banco de dados.
         }
 
-        // 👉 FLUXO NORMAL (Login com senha existente)
+        // Fluxo Normal (Login com senha)
         document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('modalCriarSenha').classList.add('hidden');
         
-        // Inicia o sistema
         await DB.init();
         Auth.renderLogoutButton();
+    }
+
+    // CASO 3: Logout
+    if (event === 'SIGNED_OUT') {
+        location.reload();
     }
 });
 
@@ -114,42 +124,16 @@ const DataMapper = {
 const Auth = {
     user: null,
     
+    // Init simplificado (o onAuthStateChange já cuida de tudo)
     init: async () => {
-        // Verifica sessão atual
+        // Apenas verifica se já existe sessão ao carregar a página
         const { data } = await supabaseClient.auth.getSession();
-        
-        // 👉 VEIO PELO LINK (convite / magic link)
-        if (veioPorLinkAuth()) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('modalCriarSenha').classList.remove('hidden');
-            return;
-        }
-        
-        if (data.session) {
-            Auth.user = data.session.user;
-            document.getElementById('loginOverlay').style.display = 'none';
-            // Inicia o sistema
-            await DB.init(); 
-            // Adiciona botão de logout na sidebar se não existir
-            Auth.renderLogoutButton();
-        } else {
-            document.getElementById('loginOverlay').style.display = 'flex';
-        }
-
-        // Listener para mudanças de auth (ex: logout em outra aba)
-        supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                Auth.user = session.user;
-                document.getElementById('loginOverlay').style.display = 'none';
-                await DB.init();
-                Auth.renderLogoutButton();
+        if (!data.session) {
+            // Se não tem sessão, garante que o login apareça (se não for recuperação)
+            if (!window.location.hash.includes('type=')) {
+                document.getElementById('loginOverlay').style.display = 'flex';
             }
-        
-            if (event === 'SIGNED_OUT') {
-                location.reload();
-            }
-        });
-
+        }
     },
 
     login: async () => {
@@ -171,18 +155,22 @@ const Auth = {
             msg.innerText = "Erro: " + error.message;
             btn.disabled = false;
             btn.innerText = 'Entrar';
-        } else {
-            
         }
+        // Se der sucesso, o onAuthStateChange 'SIGNED_IN' vai rodar automaticamente
     },
 
-    abrirCriarSenha: () => {
+    // Função ajustada para abrir apenas se houver sessão (evita o erro "session missing")
+    abrirCriarSenha: async () => {
+        const { data } = await supabaseClient.auth.getSession();
+        if (!data.session) {
+            alert("Para criar uma senha, você precisa clicar no link enviado para o seu e-mail.");
+            return;
+        }
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('modalCriarSenha').classList.remove('hidden');
     },
 
-
-  definirSenha: async () => {
+    definirSenha: async () => {
         const senha = document.getElementById('novaSenha').value;
         const confirmar = document.getElementById('confirmarSenha').value;
         const msg = document.getElementById('msgSenha');
@@ -200,29 +188,31 @@ const Auth = {
             return;
         }
 
+        // Verifica se existe sessão antes de tentar atualizar
+        const sessionData = await supabaseClient.auth.getSession();
+        if (!sessionData.data.session) {
+            msg.innerText = "Sessão expirada. Clique no link do e-mail novamente.";
+            return;
+        }
+
         btn.innerText = "Salvando...";
         btn.disabled = true;
 
-        // 1. Atualiza a senha no Supabase
         const { error } = await supabaseClient.auth.updateUser({
             password: senha
         });
 
         if (error) {
-            msg.innerText = error.message;
+            msg.innerText = "Erro: " + error.message;
             btn.innerText = "Salvar senha";
             btn.disabled = false;
         } else {
-            alert('Senha criada com sucesso! Você será redirecionado para o Login.');
+            alert('Senha criada com sucesso! Faça login com sua nova senha.');
             
-            // 2. O FLUXO QUE VOCÊ PEDIU:
-            // Deslogamos o usuário imediatamente para forçar o login manual
+            // FLUXO CRÍTICO: Logout forçado para validar o login manual
             await supabaseClient.auth.signOut();
-            
-            // 3. Limpamos a URL para remover o hash do convite e recarregamos
-            // Isso garante que o IS_INVITE_LINK seja false na próxima carga
-            window.location.hash = '';
-            window.location.reload(); 
+            window.location.hash = ''; // Limpa URL
+            window.location.reload();
         }
     },
 
@@ -232,10 +222,14 @@ const Auth = {
 
     renderLogoutButton: () => {
         const nav = document.querySelector('.sidebar ul');
+        // Evita duplicar botão
+        if (document.getElementById('btnLogoutSidebar')) return;
+
         const li = document.createElement('li');
+        li.id = 'btnLogoutSidebar';
         li.innerHTML = '<i class="ph ph-sign-out"></i> Sair';
         li.onclick = Auth.logout;
-        li.style.marginTop = 'auto'; // Empurra para baixo se tiver flex
+        li.style.marginTop = 'auto';
         li.style.borderTop = '1px solid rgba(255,255,255,0.1)';
         nav.appendChild(li);
     }
@@ -1098,6 +1092,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
