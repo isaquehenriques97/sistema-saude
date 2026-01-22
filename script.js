@@ -383,7 +383,7 @@ const PROCEDIMENTOS_PADRAO = [
 // Gerenciador de Procedimentos Dinâmicos
 // Agora ele extrai os procedimentos direto do Cache do Banco de Dados
 const ProcedimentosDB = {
-    listaCache: [],
+    listaCache: [...PROCEDIMENTOS_PADRAO],
 
     init: () => {
         // Pega todos os nomes usados no banco
@@ -1092,6 +1092,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
