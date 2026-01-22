@@ -176,7 +176,7 @@ const Auth = {
         document.getElementById('modalCriarSenha').classList.add('hidden');
         alert('Senha criada com sucesso!');
     }
-}
+},
 
     logout: async () => {
         await supabaseClient.auth.signOut();
@@ -1050,6 +1050,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
