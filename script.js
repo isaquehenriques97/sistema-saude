@@ -1100,7 +1100,7 @@ window.onload = () => {
 const ativarSincronizacao = () => {
     supabaseClient
         .channel('changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'pacientes' }, async () => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'atendimentos' }, async () => {
             console.log("Atualizando pacientes em tempo real...");
             await DB.init(); // Recarrega os dados e renderiza
         })
@@ -1110,3 +1110,4 @@ const ativarSincronizacao = () => {
         })
         .subscribe();
 };
+
