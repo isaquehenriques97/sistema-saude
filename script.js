@@ -1098,16 +1098,23 @@ window.onload = () => {
 // --- SINCRONIZAÇÃO EM TEMPO REAL ---
 // Esta função monitora o banco e atualiza a tela automaticamente para todos os usuários
 const ativarSincronizacao = () => {
-    supabaseClient
-        .channel('changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'atendimentos' }, async () => {
-            console.log("Atualizando pacientes em tempo real...");
-            await DB.init(); // Recarrega os dados e renderiza
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, async () => {
-            console.log("Atualizando consultas em tempo real...");
-            await DB.init(); // Recarrega os dados e renderiza
-        })
-        .subscribe();
+    // Criamos um canal único para a tabela 'atendimentos'
+    const channel = supabaseClient.channel('db-atendimentos');
+
+    channel
+        .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'atendimentos' }, 
+            async (payload) => {
+                console.log("Mudança detectada em atendimentos!", payload);
+                await DB.init(); // Recarrega os dados e atualiza a tela
+            }
+        )
+        .subscribe((status) => {
+            console.log("Status da Sincronização:", status);
+            if (status === 'CHANNEL_ERROR') {
+                console.error("Erro: Verifique se o Realtime está ativo no SQL Editor do Supabase.");
+            }
+        });
 };
+
 
