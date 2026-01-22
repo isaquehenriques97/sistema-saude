@@ -33,7 +33,6 @@ const DataMapper = {
                 dataRecebimento: row.data_recebimento,
                 dataSolicitacao: row.data_solicitacao,
                 dataMarcacao: row.data_marcacao,
-                dataProcedimento: row.data_procedimento,
                 tipo: row.tipo_marcacao,
                 isRetorno: row.is_retorno
             }
@@ -60,7 +59,6 @@ const DataMapper = {
             data_recebimento: appData.procedimento.dataRecebimento || null,
             data_solicitacao: appData.procedimento.dataSolicitacao || null,
             data_marcacao: appData.procedimento.dataMarcacao || null,
-            data_procedimento: appData.procedimento.dataProcedimento || null,
             tipo_marcacao: appData.procedimento.tipo,
             is_retorno: appData.procedimento.isRetorno
         };
@@ -456,13 +454,12 @@ const CadastroModule = {
         e.preventDefault();
         const idEdicao = document.getElementById('editId').value;
         const dataMarcacao = document.getElementById('dataMarcacao').value; // O dia que marcou
-        const dataProcedimento = document.getElementById('dataProcedimento').value; // O dia da consulta
         
         // NOVA LÓGICA DE STATUS:
         let status = 'espera'; // Padrão é espera
         
         // Se já tem uma data de marcação registrada, ele pula para acompanhamento (agendado)
-        if (dataMarcacao || dataProcedimento) {
+        if (dataMarcacao) {
             status = 'agendado';
         }
         
@@ -479,7 +476,6 @@ const CadastroModule = {
                 dataRecebimento: document.getElementById('dataRecebimento').value,
                 dataSolicitacao: document.getElementById('dataSolicitacao').value,
                 dataMarcacao: document.getElementById('dataMarcacao').value,
-                dataProcedimento: dataProcedimento,
                 tipo: document.getElementById('tipoMarcacao').value,
                 isRetorno: document.getElementById('isRetorno').checked
             }
@@ -919,7 +915,6 @@ const StorageModule = {
                 i.procedimento.tipo,
                 i.procedimento.isRetorno,
                 i.justificativa || '',
-                i.procedimento.dataProcedimento || ''
             ];
             csv += linha.join(";") + "\n";
         });
@@ -966,7 +961,6 @@ const StorageModule = {
                         dataMarcacao: cols[9],
                         tipo: cols[10],
                         isRetorno: cols[11] === 'true',
-                        dataProcedimento: cols[13] || ''
                     },
                     justificativa: cols[12]
                 };
@@ -993,5 +987,6 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
