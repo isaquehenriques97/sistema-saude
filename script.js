@@ -2,6 +2,9 @@
  * SISTEMA DE GESTÃO DE SAÚDE - CLOUD VERSION (SUPABASE)
  * Com padrão Adapter para manter compatibilidade com o código legado.
  */
+const veioPorConvite = () => {
+    return window.location.hash.includes('type=invite');
+};
 
 // --- CONFIGURAÇÃO SUPABASE ---
 // Substitua pelas suas chaves do projeto Supabase
@@ -19,9 +22,10 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
         document.getElementById('loginOverlay').style.display = 'none';
 
         // 👉 USUÁRIO SEM SENHA (VEIO DE CONVITE)
-        if (!session.user.hashed_password) {
-            document.getElementById('modalCriarSenha').classList.remove('hidden');
-            return; // NÃO inicia o sistema ainda
+        if (veioPorConvite()) {
+            document.getElementById('modalCriarSenha')
+              .classList.remove('hidden');
+            return; // ⚠️ NÃO inicia o sistema ainda
         }
 
         // Usuário já tem senha → fluxo normal
@@ -173,9 +177,15 @@ const Auth = {
     if (error) {
         msg.innerText = error.message;
     } else {
+        history.replaceState(null, '', window.location.pathname);
+
         document.getElementById('modalCriarSenha').classList.add('hidden');
+        
+        await DB.init();
+        Auth.renderLogoutButton();
         alert('Senha criada com sucesso!');
     }
+
 },
 
     logout: async () => {
@@ -1050,6 +1060,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
