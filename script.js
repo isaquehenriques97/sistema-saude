@@ -3,7 +3,6 @@
  *************************************************/
 const SUPABASE_URL = "https://zzvzxvejoargfqrlmxfq.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6dnp4dmVqb2FyZ2ZxcmxteGZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTU5ODIsImV4cCI6MjA4NDU5MTk4Mn0._ew5X-XraLq1PxHIn413KrwdcwTMSMg1pOSvm0gaZ4o";
-
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
@@ -13,6 +12,7 @@ const supabaseClient = supabase.createClient(
  * STATE — FONTE ÚNICA DA VERDADE
  *************************************************/
 const State = {
+  session: null,
   procedimentos: [
     "Consulta",
     "Exame",
@@ -20,13 +20,45 @@ const State = {
     "Retorno",
     "Avaliação"
   ],
-  registros: []
+  registros: [],
+  loading: false
 };
 
 /*************************************************
- * DATA SYNC — ÚNICO LUGAR QUE FALA COM SUPABASE
+ * AUTH — CONTROLE TOTAL DE LOGIN
  *************************************************/
-const DataSync = {
+const Auth = {
+  async init() {
+    const { data } = await supabaseClient.auth.getSession();
+    State.session = data.session;
+
+    supabaseClient.auth.onAuthStateChange((_, session) => {
+      State.session = session;
+      UI.toggleLogin(!session);
+      if (session) App.start();
+    });
+
+    UI.toggleLogin(!State.session);
+    if (State.session) App.start();
+  },
+
+  async login(email, password) {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+    if (error) alert(error.message);
+  },
+
+  async logout() {
+    await supabaseClient.auth.signOut();
+  }
+};
+
+/*************************************************
+ * DATA — ACESSO AO SUPABASE
+ *************************************************/
+const Data = {
   async carregar() {
     State.loading = true;
 
@@ -36,8 +68,8 @@ const DataSync = {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error(error);
       alert("Erro ao carregar dados");
+      console.error(error);
       return;
     }
 
@@ -52,78 +84,21 @@ const DataSync = {
 
     if (error) {
       alert("Erro ao salvar");
+      console.error(error);
       return;
     }
 
-    await DataSync.carregar();
-  },
-
-  async atualizar(id, dados) {
-    const { error } = await supabaseClient
-      .from("atendimentos")
-      .update(dados)
-      .eq("id", id);
-
-    if (error) {
-      alert("Erro ao atualizar");
-      return;
-    }
-
-    await DataSync.carregar();
+    await Data.carregar();
   },
 
   async remover(id) {
-    const { error } = await supabaseClient
-      .from("atendimentos")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      alert("Erro ao excluir");
-      return;
-    }
-
-    await DataSync.carregar();
+    await supabaseClient.from("atendimentos").delete().eq("id", id);
+    await Data.carregar();
   }
 };
 
 /*************************************************
- * STORAGE
- *************************************************/
-const Storage = {
-  load() {
-    const data = localStorage.getItem("registros");
-    State.registros = data ? JSON.parse(data) : [];
-  },
-  save() {
-    localStorage.setItem("registros", JSON.stringify(State.registros));
-  }
-};
-
-/*************************************************
- * DATA (REGRAS DE NEGÓCIO)
- *************************************************/
-const Data = {
-  addRegistro(registro) {
-    registro.id = crypto.randomUUID();
-    State.registros.push(registro);
-    Storage.save();
-  },
-
-  updateRegistro(id, novosDados) {
-    const idx = State.registros.findIndex(r => r.id === id);
-    if (idx === -1) return;
-    State.registros[idx] = { ...State.registros[idx], ...novosDados };
-    Storage.save();
-  },
-
-  getAll() {
-    return State.registros;
-  }
-};
-
-/*************************************************
- * RENDER — ÚNICO LUGAR QUE TOCA NO DOM
+ * RENDER — TUDO QUE MEXE NO DOM
  *************************************************/
 const Render = {
   procedimentos() {
@@ -132,10 +107,10 @@ const Render = {
 
     select.innerHTML = "<option value=''>Selecione</option>";
     State.procedimentos.forEach(p => {
-      const opt = document.createElement("option");
-      opt.value = p;
-      opt.textContent = p;
-      select.appendChild(opt);
+      const o = document.createElement("option");
+      o.value = p;
+      o.textContent = p;
+      select.appendChild(o);
     });
   },
 
@@ -151,14 +126,21 @@ const Render = {
         <td>${r.nome_paciente}</td>
         <td>${r.procedimento}</td>
         <td>${r.data_procedimento || "-"}</td>
+        <td>
+          <button data-id="${r.id}" class="btnExcluir">🗑️</button>
+        </td>
       `;
       tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll(".btnExcluir").forEach(btn => {
+      btn.onclick = () => Data.remover(btn.dataset.id).then(Render.tudo);
     });
   },
 
   relatorios() {
-    document.getElementById("dashMarcados").innerText =
-      State.registros.length;
+    const el = document.getElementById("dashMarcados");
+    if (el) el.innerText = State.registros.length;
   },
 
   tudo() {
@@ -169,105 +151,60 @@ const Render = {
 };
 
 /*************************************************
- * EVENTS — AÇÕES DO USUÁRIO
+ * UI — VISIBILIDADE
+ *************************************************/
+const UI = {
+  toggleLogin(show) {
+    document.getElementById("loginOverlay").style.display =
+      show ? "flex" : "none";
+
+    document.getElementById("appContainer").style.display =
+      show ? "none" : "block";
+  }
+};
+
+/*************************************************
+ * EVENTS — USUÁRIO
  *************************************************/
 const Events = {
-  async salvarCadastro(e) {
+  async salvar(e) {
     e.preventDefault();
 
     const registro = {
-      nome_paciente: document.getElementById("nomePaciente").value,
-      procedimento: document.getElementById("procedimento").value,
-      data_procedimento: document.getElementById("dataProcedimento").value
+      nome_paciente: nomePaciente.value,
+      procedimento: procedimento.value,
+      data_procedimento: dataProcedimento.value
     };
 
     if (!registro.nome_paciente || !registro.procedimento) return;
 
-    await DataSync.adicionar(registro);
+    await Data.adicionar(registro);
     Render.tudo();
     e.target.reset();
   }
 };
 
 /*************************************************
- * AUTH CONTROLLER — SUPABASE
+ * APP — CICLO DE VIDA
  *************************************************/
-const Auth = {
-  async init() {
-    const { data } = await supabaseClient.auth.getSession();
+const App = {
+  async start() {
+    await Data.carregar();
+    Render.tudo();
 
-    if (data.session) {
-      Auth.onLogin();
-    } else {
-      Auth.onLogout();
-    }
-
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        Auth.onLogin();
-      } else {
-        Auth.onLogout();
-      }
-    });
-  },
-
-  async login(email, password) {
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      alert(error.message);
-    }
-  },
-
-  async logout() {
-    await supabaseClient.auth.signOut();
-  },
-
-  onLogin() {
-    document.getElementById("loginOverlay").style.display = "none";
-    App.start(); // 🚨 IMPORTANTE
-  },
-
-  onLogout() {
-    document.getElementById("loginOverlay").style.display = "flex";
+    document
+      .getElementById("formCadastro")
+      ?.addEventListener("submit", Events.salvar);
   }
 };
 
 /*************************************************
- * INIT
+ * BOOTSTRAP
  *************************************************/
-const App = {
-  async init() {
-    await DataSync.carregar();
-    Render.tudo();
-
-    document
-      .getElementById("formCadastro")
-      ?.addEventListener("submit", Events.salvarCadastro);
-  }
-};
-
 document.addEventListener("DOMContentLoaded", () => {
   Auth.init();
 
-  document.getElementById("btnAuthMain").onclick = () => {
-    const email = document.getElementById("emailLogin").value;
-    const senha = document.getElementById("senhaLogin").value;
-    Auth.login(email, senha);
-  };
+  document.getElementById("btnAuthMain").onclick = () =>
+    Auth.login(emailLogin.value, senhaLogin.value);
 });
-
-const App = {
-  async start() {
-    await DataSync.carregar();
-    Render.tudo();
-
-    document
-      .getElementById("formCadastro")
-      ?.addEventListener("submit", Events.salvarCadastro);
-  }
-};
 
