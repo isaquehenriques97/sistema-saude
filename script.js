@@ -54,6 +54,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
         document.getElementById('modalCriarSenha').classList.add('hidden');
         
         await DB.init();
+        ativarSincronizacao();
         Auth.renderLogoutButton();
     }
 
@@ -1094,21 +1095,18 @@ window.onload = () => {
     Auth.init();
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// --- SINCRONIZAÇÃO EM TEMPO REAL ---
+// Esta função monitora o banco e atualiza a tela automaticamente para todos os usuários
+const ativarSincronizacao = () => {
+    supabaseClient
+        .channel('changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'pacientes' }, async () => {
+            console.log("Atualizando pacientes em tempo real...");
+            await DB.init(); // Recarrega os dados e renderiza
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, async () => {
+            console.log("Atualizando consultas em tempo real...");
+            await DB.init(); // Recarrega os dados e renderiza
+        })
+        .subscribe();
+};
