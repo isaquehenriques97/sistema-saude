@@ -468,10 +468,6 @@ const CadastroModule = {
         
         const registro = {
             status: status,
-
-        
-        const registro = {
-            status: status,
             paciente: {
                 nome: document.getElementById('nomePaciente').value.toUpperCase(),
                 nascimento: document.getElementById('dataNascimento').value,
@@ -997,4 +993,5 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
