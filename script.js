@@ -12,18 +12,26 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // FINALIZA LOGIN VIA CONVITE / MAGIC LINK
 // CONTROLE GLOBAL DE AUTENTICAÇÃO
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  console.log('Auth event:', event);
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
 
-  const loginOverlay = document.getElementById('loginOverlay');
+    if (event === 'SIGNED_IN' && session) {
+        Auth.user = session.user;
+        document.getElementById('loginOverlay').style.display = 'none';
 
-  if (session) {
-    // Usuário autenticado (convite ou login normal)
-    loginOverlay.style.display = 'none';
-  } else {
-    // Não autenticado
-    loginOverlay.style.display = 'flex';
-  }
+        // 👉 USUÁRIO SEM SENHA (VEIO DE CONVITE)
+        if (!session.user.hashed_password) {
+            document.getElementById('modalCriarSenha').classList.remove('hidden');
+            return; // NÃO inicia o sistema ainda
+        }
+
+        // Usuário já tem senha → fluxo normal
+        await DB.init();
+        Auth.renderLogoutButton();
+    }
+
+    if (event === 'SIGNED_OUT') {
+        location.reload();
+    }
 });
 
 // ============================================================
@@ -140,6 +148,35 @@ const Auth = {
             
         }
     },
+
+  definirSenha: async () => {
+    const senha = document.getElementById('novaSenha').value;
+    const confirmar = document.getElementById('confirmarSenha').value;
+    const msg = document.getElementById('msgSenha');
+
+    msg.innerText = '';
+
+    if (senha.length < 6) {
+        msg.innerText = 'A senha deve ter no mínimo 6 caracteres';
+        return;
+    }
+
+    if (senha !== confirmar) {
+        msg.innerText = 'As senhas não coincidem';
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.updateUser({
+        password: senha
+    });
+
+    if (error) {
+        msg.innerText = error.message;
+    } else {
+        document.getElementById('modalCriarSenha').classList.add('hidden');
+        alert('Senha criada com sucesso!');
+    }
+}
 
     logout: async () => {
         await supabaseClient.auth.signOut();
@@ -1013,6 +1050,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
