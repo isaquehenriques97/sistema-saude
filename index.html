@@ -51,7 +51,7 @@
 
         <main class="content">
             
-            <section id="cadastro" class="module active">
+            <section id="cadastro" class="page">
                 <header>
                     <h1>Novo Atendimento</h1>
                     <p>Preencha os dados do paciente e do procedimento.</p>
@@ -124,7 +124,7 @@
                 </form>
             </section>
 
-            <section id="acompanhamento" class="module">
+            <section id="acompanhamento" class="page">
                 <header><h1>Acompanhamento</h1><p>Confirmação de presença.</p></header>
                 <div class="filters">
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroAcompInicio"></div>
@@ -143,7 +143,7 @@
                 </table>
             </section>
 
-            <section id="concluidos" class="module">
+            <section id="concluidos" class="page">
                 <header><h1>Procedimentos Concluídos</h1></header>
                 <div class="filters">
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroDataConcluidoInicio"></div>
@@ -177,7 +177,7 @@
                 <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Data Realizado</th><th>Ações</th></tr></thead><tbody id="tabelaConcluidos"></tbody></table>
             </section>
 
-            <section id="faltosos" class="module">
+            <section id="faltosos" class="page">
                 <header><h1>Pacientes Faltosos</h1></header>
                 <div class="filters">
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroDataFaltosoInicio"></div>
@@ -209,7 +209,7 @@
                 <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Justificativa</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaFaltosos"></tbody></table>
             </section>
 
-            <section id="espera" class="module">
+            <section id="espera" class="page">
                 <div id="alertaEspera" class="alert-box-container"></div>
                 <header><h1>Lista de Espera</h1></header>
                 <div class="filters">
@@ -242,7 +242,7 @@
                 <table class="tabela-dados"><thead><tr><th>Paciente</th><th>Procedimento</th><th>Falta</th><th>Dias Espera</th><th>Ações</th></tr></thead><tbody id="tabelaEspera"></tbody></table>
             </section>
 
-            <section id="relatorios" class="module">
+            <section id="relatorios" class="page">
                 <header><h1>Relatórios e Estatísticas</h1></header>
                 <div class="filters">
                     <div class="filter-group"><label>Início:</label><input type="date" id="filtroRelatorioInicio" onchange="RelatoriosModule.atualizarTudo()"></div>
@@ -326,4 +326,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
