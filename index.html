@@ -362,9 +362,26 @@
         </div>
     </div>
 
+    <div id="modalCriarSenha" class="modal hidden">
+      <div class="modal-content">
+        <h3>Definir senha de acesso</h3>
+        <p>Este é seu primeiro acesso. Crie uma senha.</p>
+    
+        <input type="password" id="novaSenha" placeholder="Nova senha" />
+        <input type="password" id="confirmarSenha" placeholder="Confirmar senha" />
+    
+        <p id="msgSenha" style="color:red;font-size:0.9em;"></p>
+    
+        <div class="actions">
+          <button class="btn-primary" onclick="Auth.definirSenha()">Salvar senha</button>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
