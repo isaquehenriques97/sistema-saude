@@ -14,7 +14,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 supabaseClient.auth.onAuthStateChange((event, session) => {
   console.log(event);
 
-  if (event === 'SIGNED_IN' && session) {
+  if (event === 'SIGNED_IN' || session) {
     document.getElementById('loginOverlay').style.display = 'none';
   }
 
@@ -999,6 +999,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
