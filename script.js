@@ -210,9 +210,13 @@ const App = {
 document.addEventListener("DOMContentLoaded", () => {
   Auth.init();
 
-  document.getElementById("btnAuthMain").onclick = () =>
-    Auth.login(emailLogin.value, senhaLogin.value);
+  const btn = document.getElementById("btnAuthMain");
+  if (btn) {
+    btn.onclick = () =>
+      Auth.login(emailLogin.value, senhaLogin.value);
+  }
 });
+
 
 
 const Router = {
@@ -225,6 +229,7 @@ const Router = {
     if (page) page.style.display = "block";
   }
 };
+
 
 
 
