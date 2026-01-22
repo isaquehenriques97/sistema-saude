@@ -215,3 +215,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+const Router = {
+  go(sectionId) {
+    document.querySelectorAll(".page").forEach(p => {
+      p.style.display = "none";
+    });
+
+    const page = document.getElementById(sectionId);
+    if (page) page.style.display = "block";
+  }
+};
+
+
+
