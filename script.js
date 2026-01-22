@@ -1,3 +1,30 @@
+const supabase = window.supabase.createClient(
+  'https://zzvzxvejoargfqrlmxfq.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6dnp4dmVqb2FyZ2ZxcmxteGZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTU5ODIsImV4cCI6MjA4NDU5MTk4Mn0._ew5X-XraLq1PxHIn413KrwdcwTMSMg1pOSvm0gaZ4o'
+);
+
+// Trata login por convite / magic link
+(async () => {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (data?.session) {
+    console.log('Usuário autenticado via convite');
+
+    // Esconde o login
+    document.getElementById('loginOverlay').style.display = 'none';
+
+    // Aqui você pode carregar dados, etc.
+  } else {
+    console.log('Nenhuma sessão ativa');
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+
+  if (error) {
+    console.error(error);
+  }
+})();
+
+
 /*************************************************
  * SISTEMA DE GESTÃO DE SAÚDE - CLOUD VERSION (SUPABASE)
  * Com padrão Adapter para manter compatibilidade com o código legado.
@@ -987,6 +1014,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
