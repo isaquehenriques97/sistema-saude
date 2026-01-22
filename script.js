@@ -2,6 +2,13 @@
  * SISTEMA DE GESTÃO DE SAÚDE - CLOUD VERSION (SUPABASE)
  * Com padrão Adapter para manter compatibilidade com o código legado.
  */
+
+// --- VARIÁVEL DE CONTROLE DE FLUXO ---
+// Verifica se há um token na URL (Link Mágico ou Convite)
+// Fazemos isso logo no início porque a biblioteca do Supabase limpa o hash da URL rapidamente.
+const IS_INVITE_LINK = window.location.hash.includes('access_token=') && 
+                       (window.location.hash.includes('type=invite') || window.location.hash.includes('type=recovery'));
+
 const veioPorLinkAuth = () => {
     return window.location.hash.includes('access_token=');
 };
@@ -15,26 +22,34 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // FINALIZA LOGIN VIA CONVITE / MAGIC LINK
 // CONTROLE GLOBAL DE AUTENTICAÇÃO
+// CONTROLE GLOBAL DE AUTENTICAÇÃO
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-
-    if (event === 'SIGNED_IN' && session) {
-        Auth.user = session.user;
-        document.getElementById('loginOverlay').style.display = 'none';
-
-        // 👉 USUÁRIO SEM SENHA (VEIO DE CONVITE)
-        if (veioPorConvite()) {
-            document.getElementById('modalCriarSenha')
-              .classList.remove('hidden');
-            return; // ⚠️ NÃO inicia o sistema ainda
-        }
-
-        // Usuário já tem senha → fluxo normal
-        await DB.init();
-        Auth.renderLogoutButton();
-    }
-
+    
+    // 1. Se o usuário deslogar, recarrega a página para limpar a memória
     if (event === 'SIGNED_OUT') {
         location.reload();
+        return;
+    }
+
+    // 2. Usuário Logado
+    if (event === 'SIGNED_IN' && session) {
+        Auth.user = session.user;
+        
+        // 👉 FLUXO DE CONVITE (CRIAÇÃO DE SENHA)
+        // Se a variável global for true, mostramos o modal de senha e NÃO iniciamos o banco.
+        if (IS_INVITE_LINK) {
+            console.log("Fluxo de convite detectado. Aguardando criação de senha.");
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('modalCriarSenha').classList.remove('hidden');
+            return; // ⚠️ PARE AQUI: O usuário ainda precisa definir a senha e relogar.
+        }
+
+        // 👉 FLUXO NORMAL (Login com senha existente)
+        document.getElementById('loginOverlay').style.display = 'none';
+        
+        // Inicia o sistema
+        await DB.init();
+        Auth.renderLogoutButton();
     }
 });
 
@@ -168,39 +183,48 @@ const Auth = {
 
 
   definirSenha: async () => {
-    const senha = document.getElementById('novaSenha').value;
-    const confirmar = document.getElementById('confirmarSenha').value;
-    const msg = document.getElementById('msgSenha');
+        const senha = document.getElementById('novaSenha').value;
+        const confirmar = document.getElementById('confirmarSenha').value;
+        const msg = document.getElementById('msgSenha');
+        const btn = document.querySelector('#modalCriarSenha button');
 
-    msg.innerText = '';
+        msg.innerText = '';
 
-    if (senha.length < 6) {
-        msg.innerText = 'A senha deve ter no mínimo 6 caracteres';
-        return;
-    }
+        if (senha.length < 6) {
+            msg.innerText = 'A senha deve ter no mínimo 6 caracteres';
+            return;
+        }
 
-    if (senha !== confirmar) {
-        msg.innerText = 'As senhas não coincidem';
-        return;
-    }
+        if (senha !== confirmar) {
+            msg.innerText = 'As senhas não coincidem';
+            return;
+        }
 
-    const { error } = await supabaseClient.auth.updateUser({
-        password: senha
-    });
+        btn.innerText = "Salvando...";
+        btn.disabled = true;
 
-    if (error) {
-        msg.innerText = error.message;
-    } else {
-        history.replaceState(null, '', window.location.pathname);
+        // 1. Atualiza a senha no Supabase
+        const { error } = await supabaseClient.auth.updateUser({
+            password: senha
+        });
 
-        document.getElementById('modalCriarSenha').classList.add('hidden');
-        
-        await DB.init();
-        Auth.renderLogoutButton();
-        alert('Senha criada com sucesso!');
-    }
-
-},
+        if (error) {
+            msg.innerText = error.message;
+            btn.innerText = "Salvar senha";
+            btn.disabled = false;
+        } else {
+            alert('Senha criada com sucesso! Você será redirecionado para o Login.');
+            
+            // 2. O FLUXO QUE VOCÊ PEDIU:
+            // Deslogamos o usuário imediatamente para forçar o login manual
+            await supabaseClient.auth.signOut();
+            
+            // 3. Limpamos a URL para remover o hash do convite e recarregamos
+            // Isso garante que o IS_INVITE_LINK seja false na próxima carga
+            window.location.hash = '';
+            window.location.reload(); 
+        }
+    },
 
     logout: async () => {
         await supabaseClient.auth.signOut();
@@ -1074,6 +1098,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
