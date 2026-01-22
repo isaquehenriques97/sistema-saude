@@ -2,8 +2,8 @@
  * SISTEMA DE GESTÃO DE SAÚDE - CLOUD VERSION (SUPABASE)
  * Com padrão Adapter para manter compatibilidade com o código legado.
  */
-const veioPorConvite = () => {
-    return window.location.hash.includes('type=invite');
+const veioPorLinkAuth = () => {
+    return window.location.hash.includes('access_token=');
 };
 
 // --- CONFIGURAÇÃO SUPABASE ---
@@ -102,6 +102,14 @@ const Auth = {
     init: async () => {
         // Verifica sessão atual
         const { data } = await supabaseClient.auth.getSession();
+        
+        // 👉 VEIO PELO LINK (convite / magic link)
+        if (veioPorLinkAuth()) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('modalCriarSenha').classList.remove('hidden');
+            return;
+        }
+        
         if (data.session) {
             Auth.user = data.session.user;
             document.getElementById('loginOverlay').style.display = 'none';
@@ -1066,6 +1074,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
