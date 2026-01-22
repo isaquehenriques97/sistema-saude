@@ -1088,10 +1088,12 @@ const StorageModule = {
 window.onload = () => {
     // Configura botões de Login
     document.getElementById('btnAuthMain').addEventListener('click', Auth.login);
-    
+
+  ProcedimentosDB.renderSelects();
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
