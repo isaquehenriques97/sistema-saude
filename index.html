@@ -41,7 +41,29 @@
             <div class="logo">
                 <img src="logo2.png" alt="Logo Saúde" class="sidebar-logo">
             </div>
-           
+            <div style="padding: 10px; text-align: center;">
+    <button
+        onclick="ForcarSincronizacao()"
+        title="Atualizar dados"
+        style="
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        "
+        onmouseover="this.style.transform='scale(1.08)'; this.style.boxShadow='0 6px 14px rgba(0,0,0,0.25)'"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.15)'"
+    >
+        🔄
+    </button>
+</div>n>
+            </div>
             <ul>
                 <li class="active" onclick="Router.navigate('cadastro')"><i class="ph ph-user-plus"></i> Cadastro</li>
                 <li onclick="Router.navigate('acompanhamento')"><i class="ph ph-calendar-check"></i> Acompanhamento</li>
@@ -389,6 +411,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
