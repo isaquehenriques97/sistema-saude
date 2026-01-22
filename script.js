@@ -469,12 +469,7 @@ const CadastroModule = {
         const registro = {
             status: status,
 
-        // Validação simples
-        if(!document.getElementById('procedimento').value) {
-            alert("Selecione um procedimento!");
-            return;
-        }
-
+        
         const registro = {
             status: status,
             paciente: {
