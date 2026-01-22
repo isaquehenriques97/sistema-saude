@@ -455,17 +455,24 @@ const CadastroModule = {
     salvar: async (e) => {
         e.preventDefault();
         const idEdicao = document.getElementById('editId').value;
-        const dataProcedimento = document.getElementById('dataProcedimento').value;
+        const dataMarcacao = document.getElementById('dataMarcacao').value; // O dia que marcou
+        const dataProcedimento = document.getElementById('dataProcedimento').value; // O dia da consulta
+        
+        // NOVA LÓGICA DE STATUS:
+        let status = 'espera'; // Padrão é espera
+        
+        // Se já tem uma data de marcação registrada, ele pula para acompanhamento (agendado)
+        if (dataMarcacao || dataProcedimento) {
+            status = 'agendado';
+        }
+        
+        const registro = {
+            status: status,
 
         // Validação simples
         if(!document.getElementById('procedimento').value) {
             alert("Selecione um procedimento!");
             return;
-        }
-
-        let status = 'agendado';
-        if (!dataProcedimento) {
-            status = 'espera';
         }
 
         const registro = {
@@ -995,3 +1002,4 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
