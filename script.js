@@ -153,17 +153,11 @@ const Auth = {
         }
     },
 
-    abrirCriarSenha: async () => {
-    const { data } = await supabaseClient.auth.getSession();
+    abrirCriarSenha: () => {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('modalCriarSenha').classList.remove('hidden');
+    },
 
-    if (!data.session) {
-        alert('Use o link enviado por e-mail para criar sua senha.');
-        return;
-    }
-
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('modalCriarSenha').classList.remove('hidden');
-},
 
   definirSenha: async () => {
     const senha = document.getElementById('novaSenha').value;
@@ -1072,6 +1066,7 @@ window.onload = () => {
     // Inicia verificação de Auth
     Auth.init();
 };
+
 
 
 
