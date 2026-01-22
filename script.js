@@ -1117,4 +1117,11 @@ const ativarSincronizacao = () => {
         });
 };
 
+// --- ATUALIZAÇÃO AO NAVEGAR ---
+document.querySelectorAll('.sidebar ul li').forEach(item => {
+    item.addEventListener('click', () => {
+        console.log("Mudou de aba: Atualizando dados...");
+        DB.init(); // Força a busca no banco sempre que clica no menu
+    });
+});
 
