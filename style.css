@@ -1,6 +1,6 @@
 :root {
-    --primary: #0056b3;
-    --primary-dark: #003d80;
+    --primary: #00b39b;
+    --primary-dark: #008066;
     --secondary: #e3f2fd;
     --text-dark: #333;
     --text-light: #666;
@@ -263,5 +263,6 @@ button, .btn-file {
 .sync-text {
     white-space: nowrap;
 }
+
 
 
