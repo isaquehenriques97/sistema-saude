@@ -263,6 +263,11 @@ const DB = {
             console.log("Iniciando sync...");
             ativarSincronizacao();
             Auth.renderLogoutButton();
+            if (event === 'SIGNED_OUT') {
+            // Limpa cache e recarrega para tela de login
+            APP_CACHE = [];
+            location.reload();
+            }
           
             const { data, error } = await supabaseClient
                 .from('atendimentos')
@@ -1155,4 +1160,5 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
