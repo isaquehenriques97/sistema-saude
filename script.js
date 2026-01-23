@@ -87,11 +87,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
     console.log(`🔔 Evento Auth: ${event}`);
 
-    if (event === 'SIGNED_IN' && session) {
-        // Só roda se o sistema ainda NÃO estiver iniciado (evita rodar 2x no F5)
-        if (!Auth.user) {
-            await prepararAmbiente(session.user);
-        }
+    Auth.user = session?.user || null;
+    Auth.ready = true;
+
+    if (session) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        iniciarAplicacao(); // 👈 AQUI é o ponto certo
+        Auth.renderLogoutButton();
+    } else {
+        document.getElementById('loginOverlay').style.display = 'flex';
     }
     
     if (event === 'SIGNED_OUT') {
@@ -166,6 +170,7 @@ const DataMapper = {
 // ============================================================
 const Auth = {
     user: null,
+    ready: false,
     
     // Init simplificado (o onAuthStateChange já cuida de tudo)
     init: async () => {
@@ -1223,6 +1228,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
