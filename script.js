@@ -35,31 +35,37 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
         return; 
     }
 
-    // CASO 2: Usuário fez Login (ou o link de convite logou ele automaticamente)
-    if (event === 'SIGNED_IN' && session) {
+    // CASO 2: Login realizado OU Sessão restaurada ao atualizar página (F5)
+    // ADICIONADO: verificação de 'INITIAL_SESSION'
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         Auth.user = session.user;
 
-        // Se o Supabase logou via link de convite/recuperação, forçamos a tela de senha
-        // Verificamos se a URL tem "type=recovery" ou "type=invite" antes que o Supabase limpe
+        // Verifica se é recuperação de senha via hash da URL
         const hash = window.location.hash;
         if (isRecoveryMode || hash.includes('type=recovery') || hash.includes('type=invite')) {
             isRecoveryMode = true;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('modalCriarSenha').classList.remove('hidden');
-            return; // ⚠️ PARE AQUI. Não carregue o banco de dados.
+            return; 
         }
 
-        // Fluxo Normal (Login com senha)
+        // Fluxo Normal (Login com senha ou Refresh da página)
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('modalCriarSenha').classList.add('hidden');
         
-        await DB.init();
+        // Verifica se os dados já foram carregados para evitar dupla chamada
+        if (DB.getAll().length === 0) {
+            await DB.init();
+        }
+        
         ativarSincronizacao();
         Auth.renderLogoutButton();
     }
 
     // CASO 3: Logout
     if (event === 'SIGNED_OUT') {
+        // Limpa cache e recarrega para tela de login
+        APP_CACHE = [];
         location.reload();
     }
 });
@@ -1129,14 +1135,6 @@ const ativarSincronizacao = () => {
             }
         });
 };
-
-// --- ATUALIZAÇÃO AO NAVEGAR ---
-document.querySelectorAll('.sidebar ul li').forEach(item => {
-    item.addEventListener('click', () => {
-        console.log("Mudou de aba: Atualizando dados...");
-        DB.init(); // Força a busca no banco sempre que clica no menu
-    });
-});
 
 // Função para o botão manual de atualizar
 window.ForcarSincronizacao = async () => {
