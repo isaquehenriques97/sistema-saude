@@ -278,6 +278,34 @@ const Auth = {
     }
 };
 
+async function iniciarAplicacao() {
+  console.log("Iniciando aplicação...");
+
+  const {
+    data: { session },
+    error
+  } = await supabase.auth.getSession();
+
+  if (error) {
+    console.error("Erro ao recuperar sessão:", error);
+    return;
+  }
+
+  if (!session) {
+    console.log("Nenhuma sessão ativa");
+    return;
+  }
+
+  console.log("Sessão ativa detectada:", session.user.email);
+
+  await buscarDadosSupabase();
+  iniciarSync();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  iniciarAplicacao();
+});
+
 // ============================================================
 // 3. BANCO DE DADOS (Substitui LocalStorage)
 // Mantém cache local para performance, mas sincroniza com nuvem.
@@ -1189,6 +1217,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
