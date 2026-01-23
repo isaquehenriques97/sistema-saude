@@ -23,52 +23,76 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Variável de controle para saber se estamos em modo de recuperação/convite
 let isRecoveryMode = false;
 
-// --- 2. LISTENER GLOBAL DE AUTENTICAÇÃO ---
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    console.log("Evento Auth:", event); // Para depuração
+// --- 2. LÓGICA DE AUTENTICAÇÃO ROBUSTA (Correção do F5) ---
 
-    // CASO 1: Usuário clicou no link de "Recuperar Senha" ou "Convite"
-    if (event === 'PASSWORD_RECOVERY') {
+// Função principal que inicia o sistema (Esconde login, carrega dados)
+async function iniciarSistema(user) {
+    console.log("Iniciando sistema para:", user.email);
+    Auth.user = user;
+
+    // 1. Esconde a tela de login
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('modalCriarSenha').classList.add('hidden');
+
+    // 2. Renderiza o botão de sair (Sidebar)
+    Auth.renderLogoutButton();
+
+    // 3. Carrega os dados (Se ainda não carregou)
+    if (DB.getAll().length === 0) {
+        console.log("Carregando dados do banco...");
+        await DB.init();
+    }
+    
+    // 4. Liga o Realtime
+    ativarSincronizacao();
+}
+
+// A. LISTENER DE MUDANÇAS (Para Login, Logout e Reset de Senha)
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    console.log("Evento Auth Detectado:", event);
+
+    if (event === 'SIGNED_OUT') {
+        APP_CACHE = [];
+        window.location.reload(); // Recarrega a página para limpar tudo
+    } 
+    else if (event === 'PASSWORD_RECOVERY') {
         isRecoveryMode = true;
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('modalCriarSenha').classList.remove('hidden');
-        return; 
     }
-
-    // CASO 2: Login realizado OU Sessão restaurada ao atualizar página (F5)
-    // ADICIONADO: verificação de 'INITIAL_SESSION'
-    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        Auth.user = session.user;
-
-        // Verifica se é recuperação de senha via hash da URL
-        const hash = window.location.hash;
-        if (isRecoveryMode || hash.includes('type=recovery') || hash.includes('type=invite')) {
-            isRecoveryMode = true;
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('modalCriarSenha').classList.remove('hidden');
-            return; 
+    else if (event === 'SIGNED_IN' && session) {
+        // Só roda se o sistema ainda não tiver usuário definido (evita conflito com o F5 abaixo)
+        if (!Auth.user) {
+            await iniciarSistema(session.user);
         }
-
-        // Fluxo Normal (Login com senha ou Refresh da página)
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('modalCriarSenha').classList.add('hidden');
-        
-        // Verifica se os dados já foram carregados para evitar dupla chamada
-        if (DB.getAll().length === 0) {
-            await DB.init();
-        }
-        
-        ativarSincronizacao();
-        Auth.renderLogoutButton();
-    }
-
-    // CASO 3: Logout
-    if (event === 'SIGNED_OUT') {
-        // Limpa cache e recarrega para tela de login
-        APP_CACHE = [];
-        location.reload();
     }
 });
+
+// B. VERIFICAÇÃO ATIVA NO CARREGAMENTO (A Solução do F5)
+// Isso roda imediatamente ao abrir a página, sem esperar eventos.
+(async function verificarSessaoInicial() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    // Verifica hash para recuperação de senha
+    const hash = window.location.hash;
+    if (hash && (hash.includes('type=recovery') || hash.includes('type=invite'))) {
+        console.log("Modo de recuperação detectado via URL");
+        isRecoveryMode = true;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('modalCriarSenha').classList.remove('hidden');
+        return;
+    }
+
+    if (session) {
+        // Se já existe sessão (F5), inicia direto!
+        console.log("Sessão existente encontrada (F5). Iniciando...");
+        await iniciarSistema(session.user);
+    } else {
+        console.log("Nenhuma sessão ativa. Aguardando login...");
+        // Garante que o login apareça se não houver sessão
+        document.getElementById('loginOverlay').style.display = 'flex';
+    }
+})();
 
 // ============================================================
 // 1. O INTERMEDIÁRIO (ADAPTER PATTERN)
@@ -261,13 +285,6 @@ const DB = {
 
           // LOG PARA DESCOBRIR O ERRO
             console.log("Iniciando sync...");
-            ativarSincronizacao();
-            Auth.renderLogoutButton();
-            if (event === 'SIGNED_OUT') {
-            // Limpa cache e recarrega para tela de login
-            APP_CACHE = [];
-            location.reload();
-            }
           
             const { data, error } = await supabaseClient
                 .from('atendimentos')
@@ -1160,5 +1177,6 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
