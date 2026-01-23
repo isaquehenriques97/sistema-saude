@@ -284,7 +284,7 @@ async function iniciarAplicacao() {
   const {
     data: { session },
     error
-  } = await supabase.auth.getSession();
+  } = await supabaseClient.auth.getSession();
 
   if (error) {
     console.error("Erro ao recuperar sessão:", error);
@@ -1217,6 +1217,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
