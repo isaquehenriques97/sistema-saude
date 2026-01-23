@@ -261,6 +261,8 @@ const DB = {
 
           // LOG PARA DESCOBRIR O ERRO
             console.log("Iniciando sync...");
+            ativarSincronizacao();
+            Auth.renderLogoutButton();
           
             const { data, error } = await supabaseClient
                 .from('atendimentos')
@@ -1153,3 +1155,4 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
