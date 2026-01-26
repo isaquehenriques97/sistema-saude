@@ -207,7 +207,7 @@ button, .btn-file {
 
 .login-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(64,224,208,0.95); z-index: 9999;
+    background: rgba(0,255,255,1); z-index: 9999;
     display: flex; justify-content: center; align-items: center;
 }
 .login-box {
@@ -263,6 +263,7 @@ button, .btn-file {
 .sync-text {
     white-space: nowrap;
 }
+
 
 
 
