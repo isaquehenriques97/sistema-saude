@@ -911,6 +911,7 @@ const EsperaModule = {
     },
     aplicarFiltros: () => {
         const filtros = {
+            nome: document.getElementById('filtroEsperaNome').value.toLowerCase(),
             inicio: document.getElementById('filtroEsperaInicio').value,
             fim: document.getElementById('filtroEsperaFim').value,
             tipo: document.getElementById('filtroEsperaTipo').value,
@@ -1238,6 +1239,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
