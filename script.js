@@ -722,7 +722,8 @@ const AcompanhamentoModule = {
         dados.sort((a, b) => new Date(a.procedimento.dataProcedimento) - new Date(b.procedimento.dataProcedimento));
 
         dados.forEach(item => {
-            const diasEspera = Utils.diffDays(item.procedimento.dataRecebimento, item.procedimento.dataMarcacao || new Date());
+            const dataInicio = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
+            const diasEspera = Utils.diffDays(dataInicio, item.procedimento.dataMarcacao || new Date());
             const dataExibicao = item.procedimento.dataProcedimento || item.procedimento.dataMarcacao;
 
             const tr = document.createElement('tr');
@@ -1228,6 +1229,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
