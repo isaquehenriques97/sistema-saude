@@ -867,7 +867,7 @@ const EsperaModule = {
 
         dados.forEach(item => {
             // Se tiver data de Solicitação, usa ela. Se não, usa Recebimento.
-            const dataBase = item.procedimento.dataSolicitacao;
+            const dataBase = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
             const diasPassados = Utils.diffDays(dataBase, null);
             if (diasPassados >= 90) { nomesAtrasados.push(item.paciente.nome); }
 
