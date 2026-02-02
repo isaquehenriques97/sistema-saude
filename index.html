@@ -205,6 +205,12 @@
                 <div id="alertaEspera" class="alert-box-container"></div>
                 <header><h1>Lista de Espera</h1><p>Aguardando solicitação ou marcação.</p></header>
                 <div class="filters">
+                    <input 
+                      type="text" 
+                      id="filtroNome" 
+                      placeholder="Pesquisar por nome..."
+                      oninput="filtrarListaEspera()"
+                    />
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroEsperaInicio"></div>
                     <div class="filter-group"><label>Até:</label><input type="date" id="filtroEsperaFim"></div>
                     <div class="filter-group">
@@ -394,6 +400,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
