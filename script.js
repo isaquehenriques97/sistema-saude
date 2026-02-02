@@ -867,7 +867,7 @@ const EsperaModule = {
 
         dados.forEach(item => {
             // Se tiver data de Solicitação, usa ela. Se não, usa Recebimento.
-            const dataBase = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
+            const dataBase = item.procedimento.dataSolicitacao;
             const diasPassados = Utils.diffDays(dataBase, null);
             if (diasPassados >= 90) { nomesAtrasados.push(item.paciente.nome); }
 
@@ -1231,6 +1231,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
