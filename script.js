@@ -853,18 +853,11 @@ const FaltososModule = {
 const EsperaModule = {
     render: (filtros = {}) => {
         const tbody = document.getElementById('tabelaEspera');
-        const nomeBusca = document.getElementById('filtroNome').value.toLowerCase(); // Captura o nome
         const alertaContainer = document.getElementById('alertaEspera');
         tbody.innerHTML = '';
         
         let dados = DB.getAll().filter(i => i.status === 'espera');
         let nomesAtrasados = [];
-
-        if (nomeBusca.length >= 3) {
-            dados = dados.filter(item => 
-                item.paciente.nome.toLowerCase().includes(nomeBusca)
-            );
-        }
 
         if(filtros.inicio) dados = dados.filter(i => i.procedimento.dataRecebimento >= filtros.inicio);
         if(filtros.fim) dados = dados.filter(i => i.procedimento.dataRecebimento <= filtros.fim);
@@ -910,14 +903,13 @@ const EsperaModule = {
         }
     },
     aplicarFiltros: () => {
-      const campoNome = document.getElementById('filtroEsperaNome');
+
         const filtros = {
             inicio: document.getElementById('filtroEsperaInicio').value,
             fim: document.getElementById('filtroEsperaFim').value,
             tipo: document.getElementById('filtroEsperaTipo').value,
             retorno: document.getElementById('filtroRetornoEspera').checked,
             procedimento: document.getElementById('filtroEsperaProcedimento').value,
-            nome: campoNome ? campoNome.value.toLowerCase() : '',
         };
         EsperaModule.render(filtros);
     },
@@ -1240,6 +1232,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
