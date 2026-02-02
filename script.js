@@ -866,7 +866,9 @@ const EsperaModule = {
         if(filtros.procedimento) dados = dados.filter(i => i.procedimento.nome === filtros.procedimento);
 
         dados.forEach(item => {
-            const diasPassados = Utils.diffDays(item.procedimento.dataRecebimento, null);
+            // Se tiver data de Solicitação, usa ela. Se não, usa Recebimento.
+            const dataBase = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
+            const diasPassados = Utils.diffDays(dataBase, null);
             if (diasPassados >= 90) { nomesAtrasados.push(item.paciente.nome); }
 
             const tr = document.createElement('tr');
@@ -1229,6 +1231,7 @@ window.ForcarSincronizacao = async () => {
         alert("Falha ao puxar dados. Veja o Console (F12) para o erro vermelho.");
     }
 };
+
 
 
 
