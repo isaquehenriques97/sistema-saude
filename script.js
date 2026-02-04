@@ -605,6 +605,7 @@ const ProcedimentosDB = {
             const upper = novo.toUpperCase().trim();
             ProcedimentosDB.add(upper);
             ProcedimentosDB.renderSelects();
+            ProcedimentosManager.adicionar(upper);
             // Seleciona o novo
             setTimeout(() => {
                 const selects = document.querySelectorAll('#procedimento');
@@ -1383,6 +1384,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
