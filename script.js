@@ -874,6 +874,11 @@ const EsperaModule = {
             // Se tiver data de Solicitação, usa ela. Se não, usa Recebimento.
             const dataBase = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
             const diasPassados = Utils.diffDays(dataBase, null);
+            
+            if (filtros.atrasados && diasPassados < 90) {
+                return; 
+            }
+          
             if (diasPassados >= 90) { nomesAtrasados.push(item.paciente.nome); }
 
             const tr = document.createElement('tr');
@@ -908,9 +913,10 @@ const EsperaModule = {
         }
     },
     aplicarFiltros: () => {
-
+        const checkboxAtrasados = document.getElementById('filtroAtrasadosEspera');
         const filtros = {
             nome: document.getElementById('filtroNome').value,
+            atrasados: checkboxAtrasados ? checkboxAtrasados.checked : false,
             inicio: document.getElementById('filtroEsperaInicio').value,
             fim: document.getElementById('filtroEsperaFim').value,
             tipo: document.getElementById('filtroEsperaTipo').value,
@@ -1242,3 +1248,4 @@ window.ForcarSincronizacao = async () => {
 function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
 }
+
