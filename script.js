@@ -317,6 +317,101 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarAplicacao();
 });
 
+// ==========================================
+// MÓDULO DE PROCEDIMENTOS DINÂMICOS (NOVO)
+// ==========================================
+let LISTA_PROCEDIMENTOS = []; // Variável global que substituirá a constante antiga
+
+const ProcedimentosManager = {
+    // Carrega do banco e preenche a variável global
+    init: async () => {
+        try {
+            const { data, error } = await supabaseClient
+                .from('procedimentos')
+                .select('*')
+                .order('nome', { ascending: true });
+
+            if (error) throw error;
+            
+            LISTA_PROCEDIMENTOS = data.map(p => p.nome);
+            ProcedimentosManager.atualizarDropdowns();
+            ProcedimentosManager.renderTabelaGerenciamento();
+        } catch (err) {
+            console.error("Erro ao carregar procedimentos:", err);
+        }
+    },
+
+    // Adiciona novo procedimento no banco
+    adicionar: async (nome) => {
+        if (!nome) return;
+        const { error } = await supabaseClient
+            .from('procedimentos')
+            .insert([{ nome: nome.trim() }]);
+
+        if (error) {
+            alert("Erro ou procedimento já existente!");
+        } else {
+            await ProcedimentosManager.init(); // Recarrega tudo
+        }
+    },
+
+    // Remove procedimento do banco
+    remover: async (nome) => {
+        if (!confirm(`Deseja remover o procedimento "${nome}"?`)) return;
+        
+        const { error } = await supabaseClient
+            .from('procedimentos')
+            .delete()
+            .eq('nome', nome);
+
+        if (error) {
+            alert("Erro ao remover!");
+        } else {
+            await ProcedimentosManager.init();
+        }
+    },
+
+    // Atualiza todos os <select> de procedimento no sistema automaticamente
+    atualizarDropdowns: () => {
+        const IDs_SELECTS = [
+            'procedimento', 
+            'filtroEsperaProcedimento', 
+            'filtroAcompProcedimento', 
+            'filtroConcluidoProcedimento', 
+            'filtroFaltosoProcedimento'
+        ];
+
+        IDs_SELECTS.forEach(id => {
+            const select = document.getElementById(id);
+            if (!select) return;
+
+            const valorAtual = select.value; // Guarda o que estava selecionado
+            select.innerHTML = id.includes('filtro') ? '<option value="">Todos os Procedimentos</option>' : '<option value="">Selecione...</option>';
+            
+            LISTA_PROCEDIMENTOS.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                select.appendChild(opt);
+            });
+            
+            select.value = valorAtual; // Restaura a seleção
+        });
+    },
+
+    // Renderiza a tabelinha na aba de Armazenamento
+    renderTabelaGerenciamento: () => {
+        const container = document.getElementById('listaGerenciarProcedimentos');
+        if (!container) return;
+
+        container.innerHTML = LISTA_PROCEDIMENTOS.map(p => `
+            <div style="display:flex; justify-content:between; align-items:center; padding:8px; border-bottom:1px solid #eee;">
+                <span>${p}</span>
+                <i class="ph ph-trash" style="color:red; cursor:pointer" onclick="ProcedimentosManager.remover('${p}')"></i>
+            </div>
+        `).join('');
+    }
+};
 // ============================================================
 // 3. BANCO DE DADOS (Substitui LocalStorage)
 // Mantém cache local para performance, mas sincroniza com nuvem.
@@ -1286,6 +1381,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
