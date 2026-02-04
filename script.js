@@ -859,6 +859,11 @@ const EsperaModule = {
         let dados = DB.getAll().filter(i => i.status === 'espera');
         let nomesAtrasados = [];
 
+        if (filtros.nome) {
+              const termo = filtros.nome.toLowerCase();
+              dados = dados.filter(i => i.paciente.nome.toLowerCase().includes(termo));
+          }
+
         if(filtros.inicio) dados = dados.filter(i => i.procedimento.dataRecebimento >= filtros.inicio);
         if(filtros.fim) dados = dados.filter(i => i.procedimento.dataRecebimento <= filtros.fim);
         if(filtros.tipo) dados = dados.filter(i => i.procedimento.tipo === filtros.tipo);
@@ -905,6 +910,7 @@ const EsperaModule = {
     aplicarFiltros: () => {
 
         const filtros = {
+            nome: document.getElementById('filtroNome').value,
             inicio: document.getElementById('filtroEsperaInicio').value,
             fim: document.getElementById('filtroEsperaFim').value,
             tipo: document.getElementById('filtroEsperaTipo').value,
@@ -1233,18 +1239,6 @@ window.ForcarSincronizacao = async () => {
     }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function filtrarListaEspera() {
+    EsperaModule.aplicarFiltros();
+}
