@@ -712,6 +712,11 @@ const AcompanhamentoModule = {
         tbody.innerHTML = '';
         
         let dados = DB.getAll().filter(i => i.status === 'agendado');
+
+        if (filtros.nome) {
+              const termo = filtros.nome.toLowerCase();
+              dados = dados.filter(i => i.paciente.nome.toLowerCase().includes(termo));
+        }
         
         if(filtros.inicio) dados = dados.filter(i => i.procedimento.dataProcedimento >= filtros.inicio);
         if(filtros.fim) dados = dados.filter(i => i.procedimento.dataProcedimento <= filtros.fim);
@@ -724,7 +729,7 @@ const AcompanhamentoModule = {
         dados.forEach(item => {
             const dataInicio = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
             const diasEspera = Utils.diffDays(dataInicio, item.procedimento.dataMarcacao || new Date());
-            const dataExibicao = item.procedimento.dataProcedimento || item.procedimento.dataMarcacao;
+            const dataExibicao = item.procedimento.dataMarcacao;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -742,6 +747,7 @@ const AcompanhamentoModule = {
     },
     aplicarFiltros: () => {
         const filtros = {
+            nome: document.getElementById('filtroNome').value,
             inicio: document.getElementById('filtroAcompInicio').value,
             fim: document.getElementById('filtroAcompFim').value,
             tipo: document.getElementById('filtroAcompTipo').value,
@@ -1247,5 +1253,7 @@ window.ForcarSincronizacao = async () => {
 
 function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
+    AcompanhamentoModule.aplicarFiltros();
 }
+
 
