@@ -741,11 +741,11 @@ const AcompanhamentoModule = {
             let textoPrazo = "";
             let estiloPrazo = "";
 
-            if (diffDays > 0) {
+            if (diffDays > 1) {
                 // Caso: Futuro
                 textoPrazo = `Faltam ${diffDays} dias`;
                 estiloPrazo = "color: var(--primary); font-weight: 500;"; // Cor padrão do sistema
-            } else if (diffDays === 0) {
+            } else if (diffDays === 1) {
                 // Caso: Hoje
                 textoPrazo = "É hoje!";
                 estiloPrazo = "color: #f39c12; font-weight: bold;"; // Laranja para atenção
@@ -1280,6 +1280,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
