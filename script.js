@@ -727,15 +727,40 @@ const AcompanhamentoModule = {
         dados.sort((a, b) => new Date(a.procedimento.dataProcedimento) - new Date(b.procedimento.dataProcedimento));
 
         dados.forEach(item => {
-            const dataInicio = item.procedimento.dataSolicitacao || item.procedimento.dataRecebimento;
-            const diasEspera = Utils.diffDays(dataInicio, item.procedimento.dataMarcacao || new Date());
-            const dataExibicao = item.procedimento.dataMarcacao;
+            const dataMarcacao = item.procedimento.dataMarcacao;
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas os dias
+            
+            const dataAlvo = new Date(dataMarcacao);
+            dataAlvo.setHours(0, 0, 0, 0);
+
+            // Calcula a diferença em milissegundos e converte para dias
+            const diffTime = dataAlvo - hoje;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let textoPrazo = "";
+            let estiloPrazo = "";
+
+            if (diffDays > 0) {
+                // Caso: Futuro
+                textoPrazo = `Faltam ${diffDays} dias`;
+                estiloPrazo = "color: var(--primary); font-weight: 500;"; // Cor padrão do sistema
+            } else if (diffDays === 0) {
+                // Caso: Hoje
+                textoPrazo = "É hoje!";
+                estiloPrazo = "color: #f39c12; font-weight: bold;"; // Laranja para atenção
+            } else {
+                // Caso: Passou da data
+                textoPrazo = `Já passou ${Math.abs(diffDays)} dias`;
+                estiloPrazo = "color: red; font-weight: bold;"; // Vermelho como solicitado
+            }
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${item.paciente.nome} ${item.procedimento.isRetorno ? '<b>(R)</b>' : ''}</td>
                 <td>${item.procedimento.nome}</td>
-                <td><strong>${Utils.formatDate(dataExibicao)}</strong></td> <td>${diasEspera} dias</td>
+                <td><strong>${Utils.formatDate(dataMarcacao)}</strong></td> 
+                <td style="${estiloPrazo}">${textoPrazo}</td>
                 <td>
                     <button class="btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="AcompanhamentoModule.abrirModalFalta('${item.id}')">Não</button>
                     <button class="btn-primary" style="padding: 5px 10px; font-size: 0.8em;" onclick="AcompanhamentoModule.marcarCompareceu('${item.id}')">Sim</button>
@@ -1255,5 +1280,6 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
