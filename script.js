@@ -728,31 +728,37 @@ const AcompanhamentoModule = {
 
         dados.forEach(item => {
             const dataMarcacao = item.procedimento.dataMarcacao;
+            if (!dataMarcacao) return;
+
+            // 1. Pega a data de HOJE zerada
             const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas os dias
-            
-            const dataAlvo = new Date(dataMarcacao);
+            hoje.setHours(0, 0, 0, 0);
+
+            // 2. Converte a string "AAAA-MM-DD" manualmente para evitar erro de fuso horário
+            const [ano, mes, dia] = dataMarcacao.split('-').map(Number);
+            const dataAlvo = new Date(ano, mes - 1, dia); // No JS, os meses vão de 0 a 11
             dataAlvo.setHours(0, 0, 0, 0);
 
-            // Calcula a diferença em milissegundos e converte para dias
-            const diffTime = dataAlvo - hoje;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // 3. Calcula a diferença exata em dias
+            const diffTime = dataAlvo.getTime() - hoje.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
             let textoPrazo = "";
             let estiloPrazo = "";
 
-            if (diffDays > 1) {
+            if (diffDays > 0) {
                 // Caso: Futuro
                 textoPrazo = `Faltam ${diffDays} dias`;
-                estiloPrazo = "color: var(--primary); font-weight: 500;"; // Cor padrão do sistema
-            } else if (diffDays === 1) {
-                // Caso: Hoje
+                estiloPrazo = "color: var(--primary); font-weight: 500;";
+            } else if (diffDays === 0) {
+                // Caso: Hoje (Agora vai cair aqui corretamente!)
                 textoPrazo = "É hoje!";
-                estiloPrazo = "color: #f39c12; font-weight: bold;"; // Laranja para atenção
+                estiloPrazo = "color: #f39c12; font-weight: bold;";
             } else {
-                // Caso: Passou da data
-                textoPrazo = `Já passou ${Math.abs(diffDays)} dias`;
-                estiloPrazo = "color: red; font-weight: bold;"; // Vermelho como solicitado
+                // Caso: Passado
+                const diasPassados = Math.abs(diffDays);
+                textoPrazo = `Já passou ${diasPassados} dia${diasPassados > 1 ? 's' : ''}`;
+                estiloPrazo = "color: red; font-weight: bold;";
             }
 
             const tr = document.createElement('tr');
@@ -1280,6 +1286,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
