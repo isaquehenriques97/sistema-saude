@@ -348,6 +348,21 @@
                         <p>Os dados estão salvos no seu navegador.</p>
                     </div>
                 </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h3><i class="ph ph-wrench"></i> Gerenciar Procedimentos</h3>
+                    <p>Adicione ou remova os tipos de atendimentos que aparecem no sistema.</p>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="novoNomeProcedimento" placeholder="Ex: Raio-X, Consulta, etc..." style="flex:1">
+                        <button class="btn-primary" onclick="ProcedimentosManager.adicionar(document.getElementById('novoNomeProcedimento').value)">
+                            <i class="ph ph-plus"></i> Adicionar
+                        </button>
+                    </div>
+                
+                    <div id="listaGerenciarProcedimentos" style="max-height: 200px; overflow-y: auto; background: #f9f9f9; border-radius: 8px; padding: 10px;">
+                        </div>
+                </div>
             </section>
 
         </main>
@@ -410,6 +425,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
