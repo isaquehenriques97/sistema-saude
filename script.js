@@ -423,6 +423,8 @@ const DB = {
         await DB.sync();
         ProcedimentosDB.init(); // Inicia procedimentos baseados nos dados carregados
         Router.initModule('cadastro');
+        // Dentro de DB.init, no final:
+        await ProcedimentosManager.init();
     },
 
     // Puxa tudo da nuvem e atualiza o cache
@@ -1381,6 +1383,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
