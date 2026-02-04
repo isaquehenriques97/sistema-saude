@@ -145,6 +145,12 @@
                 </header>
                 
                 <div class="filters">
+                    <input 
+                      type="text" 
+                      id="filtroNome" 
+                      placeholder="Pesquisar por nome..."
+                      oninput="filtrarListaEspera()"
+                    />
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroAcompInicio"></div>
                     <div class="filter-group"><label>Até:</label><input type="date" id="filtroAcompFim"></div>
                     <div class="filter-group">
@@ -403,6 +409,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
