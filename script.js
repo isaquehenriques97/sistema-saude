@@ -311,7 +311,6 @@ async function iniciarAplicacao() {
 
   await DB.init();
   ativarSincronizacao();
-  iniciarSync();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1385,6 +1384,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
