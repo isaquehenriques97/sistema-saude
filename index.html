@@ -214,9 +214,9 @@
                 <div class="filters">
                     <input 
                       type="text" 
-                      id="filtroNome" 
+                      id="filtroNomeEspera" 
                       placeholder="Pesquisar por nome..."
-                      oninput="filtrarListaEspera()"
+                      oninput="EsperaModule.aplicarFiltros()"
                     />
                     <div class="filter-group"><label>De:</label><input type="date" id="filtroEsperaInicio"></div>
                     <div class="filter-group"><label>Até:</label><input type="date" id="filtroEsperaFim"></div>
@@ -425,6 +425,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
