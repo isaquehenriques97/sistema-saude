@@ -310,6 +310,7 @@ async function iniciarAplicacao() {
   console.log("Sessão ativa detectada:", session.user.email);
 
   await DB.init();
+  ativarSincronizacao();
   iniciarSync();
 }
 
@@ -1384,6 +1385,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
