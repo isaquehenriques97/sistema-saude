@@ -309,7 +309,7 @@ async function iniciarAplicacao() {
 
   console.log("Sessão ativa detectada:", session.user.email);
 
-  await buscarDadosSupabase();
+  await DB.init();
   iniciarSync();
 }
 
@@ -1370,7 +1370,7 @@ window.ForcarSincronizacao = async () => {
     console.log("Tentando puxar dados do Supabase...");
     const sucesso = await DB.sync();
     
-    if(btn) btn.innerText = "🔄 Atualizar Dados";
+    if(btn) btn.innerText = "Atualizar Dados";
     
     if (sucesso) {
         alert("Dados atualizados com sucesso da nuvem!");
@@ -1384,6 +1384,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
