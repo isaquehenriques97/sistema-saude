@@ -1050,7 +1050,7 @@ const EsperaModule = {
     aplicarFiltros: () => {
         const checkboxAtrasados = document.getElementById('filtroAtrasadosEspera');
         const filtros = {
-            nome: document.getElementById('filtroNome').value,
+            nome: document.getElementById('filtroNomeEspera').value,
             atrasados: checkboxAtrasados ? checkboxAtrasados.checked : false,
             inicio: document.getElementById('filtroEsperaInicio').value,
             fim: document.getElementById('filtroEsperaFim').value,
@@ -1384,6 +1384,7 @@ function filtrarListaEspera() {
     EsperaModule.aplicarFiltros();
     AcompanhamentoModule.aplicarFiltros();
 }
+
 
 
 
