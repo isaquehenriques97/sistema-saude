@@ -399,48 +399,105 @@
 
             <div class="card">
                 <h3><i class="ph ph-file-pdf"></i> Exportar Relatórios em PDF</h3>
-                <p style="margin-bottom:16px;font-size:0.85rem;color:var(--text-light);">Relatórios formais</p>
+                <p style="margin-bottom:20px;font-size:0.85rem;color:var(--text-light);">Clique em qualquer relatório para gerar e baixar o PDF automaticamente.</p>
 
-                <div style="display:flex;flex-direction:column;gap:14px;">
-                    <!-- Linha 1: Relatórios Gerais -->
-                    <div>
-                        <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-light);margin-bottom:8px;">Relatórios Gerais</p>
-                        <div class="pdf-actions">
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFGeral()">
-                                <i class="ph ph-file-pdf"></i> Geral
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFConcluidos()">
-                                <i class="ph ph-check-square"></i> Concluídos
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFEspera()">
-                                <i class="ph ph-hourglass"></i> Lista de Espera
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFFaltosos()">
-                                <i class="ph ph-warning"></i> Faltosos
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFMarcados()">
-                                <i class="ph ph-calendar-check"></i> Agendados
-                            </button>
+                <!-- Relatórios Gerais -->
+                <p class="pdf-section-label">Relatórios Gerais</p>
+                <div class="pdf-cards-grid">
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFGeral()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#0a7c6a,#0d9e88);">
+                            <i class="ph ph-file-pdf"></i>
                         </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Relatório Geral</span>
+                            <span class="pdf-card-desc">Todos os atendimentos registrados</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
                     </div>
-
-                    <!-- Linha 2: Relatórios Analíticos -->
-                    <div>
-                        <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-light);margin-bottom:8px;">Relatórios Analíticos</p>
-                        <div class="pdf-actions">
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFPorProcedimento()">
-                                <i class="ph ph-chart-pie-slice"></i> Por Procedimento
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFPorTipo()">
-                                <i class="ph ph-tag"></i> Por Tipo (SUS/Particular...)
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFAtrasados()">
-                                <i class="ph ph-clock-countdown"></i> Atrasados +90 Dias
-                            </button>
-                            <button class="btn-primary" onclick="RelatoriosModule.baixarPDFRetornos()">
-                                <i class="ph ph-arrow-u-up-left"></i> Retornos
-                            </button>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFConcluidos()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#276749,#48bb78);">
+                            <i class="ph ph-check-square"></i>
                         </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Concluídos</span>
+                            <span class="pdf-card-desc">Pacientes que realizaram o procedimento</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFEspera()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#c05621,#f6ad55);">
+                            <i class="ph ph-hourglass"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Lista de Espera</span>
+                            <span class="pdf-card-desc">Pacientes aguardando marcação</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFFaltosos()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#c53030,#fc8181);">
+                            <i class="ph ph-warning"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Faltosos</span>
+                            <span class="pdf-card-desc">Pacientes que não compareceram</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFMarcados()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#2b6cb0,#63b3ed);">
+                            <i class="ph ph-calendar-check"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Agendados</span>
+                            <span class="pdf-card-desc">Consultas com data marcada</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                </div>
+
+                <!-- Relatórios Analíticos -->
+                <p class="pdf-section-label" style="margin-top:22px;">Relatórios Analíticos</p>
+                <div class="pdf-cards-grid">
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFPorProcedimento()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#6b46c1,#b794f4);">
+                            <i class="ph ph-chart-pie-slice"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Por Procedimento</span>
+                            <span class="pdf-card-desc">Distribuição por tipo de atendimento</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFPorTipo()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#0097a7,#4dd0e1);">
+                            <i class="ph ph-tag"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Por Tipo de Marcação</span>
+                            <span class="pdf-card-desc">SUS, Consórcio, Particular...</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFAtrasados()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#7b5e22,#d4a017);">
+                            <i class="ph ph-clock-countdown"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Atrasados +90 Dias</span>
+                            <span class="pdf-card-desc">Pacientes com espera crítica</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
+                    </div>
+                    <div class="pdf-report-card" onclick="RelatoriosModule.baixarPDFRetornos()">
+                        <div class="pdf-card-icon" style="background:linear-gradient(135deg,#1a6696,#63b3ed);">
+                            <i class="ph ph-arrow-u-up-left"></i>
+                        </div>
+                        <div class="pdf-card-body">
+                            <span class="pdf-card-title">Retornos</span>
+                            <span class="pdf-card-desc">Pacientes em retorno ao procedimento</span>
+                        </div>
+                        <i class="ph ph-download-simple pdf-card-arrow"></i>
                     </div>
                 </div>
             </div>
@@ -453,13 +510,52 @@
                 <p>Backup, importação e monitoramento de registros.</p>
             </header>
 
-            <div class="storage-actions">
-                <button class="btn-primary" onclick="StorageModule.baixarCSV()"><i class="ph ph-download"></i> Baixar CSV</button>
-                <label class="btn-secondary btn-file">
-                    <i class="ph ph-upload"></i> Importar CSV
-                    <input type="file" id="fileUpload" accept=".csv" onchange="StorageModule.importarCSV(this)">
-                </label>
-                <button class="btn-danger" onclick="StorageModule.limparTudo()"><i class="ph ph-trash"></i> Limpar Tudo</button>
+            <!-- CSV Backup Card -->
+            <div class="card csv-backup-card">
+                <h3><i class="ph ph-file-csv"></i> Backup Local (CSV)</h3>
+                <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:18px;">
+                    Mantenha uma cópia local dos seus dados além da nuvem. Recomendado fazer um <strong style="color:var(--primary);">download mensal</strong> para ter um registro interno seguro em sua máquina.
+                </p>
+                <div class="csv-action-grid">
+                    <div class="csv-action-item">
+                        <div class="csv-action-icon download-icon">
+                            <i class="ph ph-download-simple"></i>
+                        </div>
+                        <div class="csv-action-info">
+                            <span class="csv-action-title">Exportar CSV</span>
+                            <span class="csv-action-desc">Baixe todos os dados como planilha — ideal para arquivamento mensal local</span>
+                        </div>
+                        <button class="btn-primary" onclick="StorageModule.baixarCSV()">
+                            <i class="ph ph-download"></i> Baixar CSV
+                        </button>
+                    </div>
+                    <div class="csv-divider"></div>
+                    <div class="csv-action-item">
+                        <div class="csv-action-icon upload-icon">
+                            <i class="ph ph-upload-simple"></i>
+                        </div>
+                        <div class="csv-action-info">
+                            <span class="csv-action-title">Importar CSV</span>
+                            <span class="csv-action-desc">Restaure dados de um backup anterior — os registros serão inseridos na nuvem</span>
+                        </div>
+                        <label class="btn-secondary btn-file">
+                            <i class="ph ph-upload"></i> Importar CSV
+                            <input type="file" id="fileUpload" accept=".csv" onchange="StorageModule.importarCSV(this)">
+                        </label>
+                    </div>
+                </div>
+                <div class="csv-danger-zone">
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                        <i class="ph ph-warning-circle" style="color:var(--danger);font-size:1.3rem;flex-shrink:0;"></i>
+                        <div>
+                            <span style="font-weight:700;color:var(--danger);font-size:0.85rem;">Zona de Perigo</span>
+                            <p style="font-size:0.78rem;color:var(--text-light);margin:0;">Apaga permanentemente todos os registros do servidor. Faça backup antes.</p>
+                        </div>
+                    </div>
+                    <button class="btn-danger" onclick="StorageModule.limparTudo()">
+                        <i class="ph ph-trash"></i> Limpar Tudo
+                    </button>
+                </div>
             </div>
 
             <div class="supabase-connect-card">
@@ -535,6 +631,30 @@
         </div>
         <div class="actions">
             <button class="btn-primary" onclick="document.getElementById('modalListaProcedimento').classList.add('hidden')">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalDuplicado" class="modal hidden">
+    <div class="modal-content modal-dup-content">
+        <div class="modal-dup-header">
+            <div class="modal-dup-icon-wrap">
+                <i class="ph ph-user-check"></i>
+            </div>
+            <div>
+                <h3 style="margin-bottom:4px;"><i class="ph ph-warning-circle" style="color:var(--warning);"></i> Paciente já cadastrado</h3>
+                <p style="font-size:0.85rem;color:var(--text-light);margin:0;">Encontramos um registro com o mesmo nome e procedimento na base de dados.</p>
+            </div>
+        </div>
+        <div id="modalDuplicadoInfo" class="modal-dup-info"></div>
+        <p style="font-size:0.88rem;color:var(--text-mid);margin-bottom:6px;">Deseja prosseguir com o cadastro mesmo assim?</p>
+        <div class="actions">
+            <button class="btn-secondary" onclick="CadastroModule.cancelarDuplicado()">
+                <i class="ph ph-x"></i> Cancelar
+            </button>
+            <button class="btn-primary" onclick="CadastroModule.confirmarDuplicado()">
+                <i class="ph ph-floppy-disk"></i> Salvar mesmo assim
+            </button>
         </div>
     </div>
 </div>

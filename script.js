@@ -578,6 +578,10 @@ const Router = {
 // CADASTRO
 // ============================================================
 const CadastroModule = {
+    _pendingRegistro: null,
+    _pendingBtn: null,
+    _pendingBtnOriginal: null,
+
     init: () => {
         document.getElementById('dataRecebimento').valueAsDate = new Date();
     },
@@ -609,21 +613,62 @@ const CadastroModule = {
         document.getElementById('editId').value = '';
         document.getElementById('dataRecebimento').valueAsDate = new Date();
     },
+
+    verificarDuplicata: (nome, procedimento) => {
+        return DB.getAll().filter(r =>
+            r.paciente.nome.toLowerCase() === nome.toLowerCase() &&
+            r.procedimento.nome.toLowerCase() === procedimento.toLowerCase()
+        );
+    },
+
+    cancelarDuplicado: () => {
+        document.getElementById('modalDuplicado').classList.add('hidden');
+        if (CadastroModule._pendingBtn) {
+            CadastroModule._pendingBtn.innerHTML = CadastroModule._pendingBtnOriginal;
+            CadastroModule._pendingBtn.disabled = false;
+        }
+        CadastroModule._pendingRegistro = null;
+        CadastroModule._pendingBtn = null;
+    },
+
+    confirmarDuplicado: async () => {
+        document.getElementById('modalDuplicado').classList.add('hidden');
+        await CadastroModule._executarSalvar();
+    },
+
+    _executarSalvar: async () => {
+        const registro = CadastroModule._pendingRegistro;
+        const btn = CadastroModule._pendingBtn;
+        const idEdicao = document.getElementById('editId').value;
+        try {
+            if (idEdicao) { await DB.update(idEdicao, registro); alert('Atualizado com sucesso!'); }
+            else { await DB.add(registro); alert("Cadastro salvo com sucesso!"); }
+            CadastroModule.limparFormulario();
+        } catch (err) { console.error(err); }
+        finally {
+            if (btn) { btn.innerHTML = CadastroModule._pendingBtnOriginal; btn.disabled = false; }
+            CadastroModule._pendingRegistro = null;
+            CadastroModule._pendingBtn = null;
+        }
+    },
+
     salvar: async (e) => {
         e.preventDefault();
         const idEdicao = document.getElementById('editId').value;
         const dataMarcacao = document.getElementById('dataMarcacao').value;
         const status = dataMarcacao ? 'agendado' : 'espera';
+        const nomePaciente = document.getElementById('nomePaciente').value.toUpperCase();
+        const procedimentoNome = document.getElementById('procedimento').value;
         const registro = {
             status,
             paciente: {
-                nome: document.getElementById('nomePaciente').value.toUpperCase(),
+                nome: nomePaciente,
                 nascimento: document.getElementById('dataNascimento').value,
                 endereco: document.getElementById('endereco').value,
                 contato: document.getElementById('contato').value
             },
             procedimento: {
-                nome: document.getElementById('procedimento').value,
+                nome: procedimentoNome,
                 dataRecebimento: document.getElementById('dataRecebimento').value,
                 dataSolicitacao: document.getElementById('dataSolicitacao').value,
                 dataMarcacao: document.getElementById('dataMarcacao').value,
@@ -633,14 +678,41 @@ const CadastroModule = {
         };
         const btn = e.target.querySelector('button[type="submit"]');
         const txtOriginal = btn.innerHTML;
-        btn.innerHTML = '<i class="ph ph-circle-notch"></i> Salvando...';
+        btn.innerHTML = '<i class="ph ph-circle-notch"></i> Verificando...';
         btn.disabled = true;
-        try {
-            if (idEdicao) { await DB.update(idEdicao, registro); alert('Atualizado com sucesso!'); }
-            else { await DB.add(registro); alert("Cadastro salvo com sucesso!"); }
-            CadastroModule.limparFormulario();
-        } catch (err) { console.error(err); }
-        finally { btn.innerHTML = txtOriginal; btn.disabled = false; }
+
+        // Verifica duplicata apenas em novos cadastros (não em edições)
+        if (!idEdicao) {
+            const duplicatas = CadastroModule.verificarDuplicata(nomePaciente, procedimentoNome);
+            if (duplicatas.length > 0) {
+                // Guarda o estado pendente e abre o modal
+                CadastroModule._pendingRegistro = registro;
+                CadastroModule._pendingBtn = btn;
+                CadastroModule._pendingBtnOriginal = txtOriginal;
+
+                const statusMap = { agendado:'Agendado', concluido:'Concluído', faltoso:'Faltou', espera:'Em Espera' };
+                const dup = duplicatas[0];
+                const dataRef = dup.procedimento.dataMarcacao || dup.procedimento.dataRecebimento || dup.procedimento.dataSolicitacao;
+                const Utils_fmt = (d) => { if (!d) return '-'; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
+
+                document.getElementById('modalDuplicadoInfo').innerHTML = `
+                    <strong>Paciente:</strong> ${dup.paciente.nome}<br>
+                    <strong>Procedimento:</strong> ${dup.procedimento.nome}<br>
+                    <strong>Status atual:</strong> ${statusMap[dup.status] || dup.status}<br>
+                    <strong>Data referência:</strong> ${Utils_fmt(dataRef)}<br>
+                    ${duplicatas.length > 1 ? `<span style="color:var(--warning);font-weight:600;">⚠ ${duplicatas.length} registros encontrados com este mesmo paciente e procedimento.</span>` : ''}
+                `;
+                document.getElementById('modalDuplicado').classList.remove('hidden');
+                return; // Espera a decisão do usuário no modal
+            }
+        }
+
+        // Sem duplicata (ou é edição): salva diretamente
+        CadastroModule._pendingRegistro = registro;
+        CadastroModule._pendingBtn = btn;
+        CadastroModule._pendingBtnOriginal = txtOriginal;
+        btn.innerHTML = '<i class="ph ph-circle-notch"></i> Salvando...';
+        await CadastroModule._executarSalvar();
     }
 };
 document.getElementById('formCadastro').addEventListener('submit', CadastroModule.salvar);
