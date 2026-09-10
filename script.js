@@ -959,6 +959,9 @@ const EsperaModule = {
             if (filtros.atrasados && diasPassados < 90) return;
             const tr = document.createElement('tr');
             if (diasPassados >= 90) tr.style.background = '#fff5f5';
+            const botaoAcao = !item.procedimento.dataSolicitacao
+                ? `<button class="btn-primary" style="padding:4px 10px;font-size:0.78em;" onclick="EsperaModule.marcarSolicitado('${item.id}')"><i class="ph ph-check"></i> Foi solicitado</button>`
+                : `<button class="btn-primary" style="padding:4px 10px;font-size:0.78em;" onclick="EsperaModule.abrirModalMarcacao('${item.id}')"><i class="ph ph-calendar-check"></i> Marcado</button>`;
             tr.innerHTML = `
                 <td><strong>${item.paciente.nome}</strong> ${item.procedimento.isRetorno ? '<span class="badge badge-info" style="font-size:0.68rem;">Retorno</span>' : ''}</td>
                 <td>${item.procedimento.nome}</td>
@@ -967,8 +970,8 @@ const EsperaModule = {
                     ${diasPassados >= 90 ? '⚠ ' : ''}${diasPassados} dias
                 </td>
                 <td>
+                    ${botaoAcao}
                     <i class="ph ph-magnifying-glass icon-btn" onclick="Utils.verDetalhes('${item.id}')" title="Detalhes"></i>
-                    <i class="ph ph-pencil-simple icon-btn" onclick="EsperaModule.editar('${item.id}')" title="Editar"></i>
                     <i class="ph ph-trash icon-btn delete" onclick="DB.delete('${item.id}')" title="Apagar"></i>
                 </td>
             `;
@@ -996,6 +999,35 @@ const EsperaModule = {
             retorno: document.getElementById('filtroRetornoEspera').checked,
             procedimento: document.getElementById('filtroEsperaProcedimento').value,
         });
+    },
+
+    _hojeLocal: () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    },
+
+    marcarSolicitado: async (id) => {
+        await DB.update(id, { procedimento: { dataSolicitacao: EsperaModule._hojeLocal() } });
+    },
+
+    _idMarcacaoAtual: null,
+    abrirModalMarcacao: (id) => {
+        EsperaModule._idMarcacaoAtual = id;
+        document.getElementById('dataMarcacaoModal').value = EsperaModule._hojeLocal();
+        document.getElementById('modalMarcacao').classList.remove('hidden');
+    },
+    fecharModalMarcacao: () => {
+        document.getElementById('modalMarcacao').classList.add('hidden');
+        EsperaModule._idMarcacaoAtual = null;
+    },
+    confirmarMarcacao: async () => {
+        const data = document.getElementById('dataMarcacaoModal').value;
+        if (!data) { alert('Selecione uma data.'); return; }
+        await DB.update(EsperaModule._idMarcacaoAtual, {
+            status: 'agendado',
+            procedimento: { dataMarcacao: data }
+        });
+        EsperaModule.fecharModalMarcacao();
     },
 
     editar: (id) => {

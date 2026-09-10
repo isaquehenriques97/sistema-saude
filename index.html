@@ -659,6 +659,20 @@
     </div>
 </div>
 
+<div id="modalMarcacao" class="modal hidden">
+    <div class="modal-content">
+        <h3><i class="ph ph-calendar-check"></i> Data da Marcação</h3>
+        <div class="input-group">
+            <label>Data para qual foi marcado</label>
+            <input type="date" id="dataMarcacaoModal" required>
+        </div>
+        <div class="actions">
+            <button class="btn-secondary" onclick="EsperaModule.fecharModalMarcacao()">Cancelar</button>
+            <button class="btn-primary" onclick="EsperaModule.confirmarMarcacao()"><i class="ph ph-floppy-disk"></i> Salvar</button>
+        </div>
+    </div>
+</div>
+
 <div id="modalCriarSenha" class="modal hidden">
     <div class="modal-content">
         <h3><i class="ph ph-key"></i> Definir Senha de Acesso</h3>
