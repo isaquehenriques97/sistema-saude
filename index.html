@@ -659,6 +659,38 @@
     </div>
 </div>
 
+
+<div id="modalEditarEspera" class="modal hidden">
+    <div class="modal-content modal-editar-espera-content">
+        <div class="modal-editar-espera-header">
+            <div class="modal-editar-espera-icon"><i class="ph ph-pencil-simple"></i></div>
+            <div><h3 style="margin-bottom:4px;">Editar paciente</h3><p style="font-size:0.84rem;color:var(--text-light);">Corrija os dados necessários sem sair da Lista de Espera.</p></div>
+            <button type="button" class="modal-editar-espera-close" onclick="EsperaModule.fecharModalEdicao()" aria-label="Fechar"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="formEditarEspera" onsubmit="EsperaModule.salvarEdicao(event)"><input type="hidden" id="editarEsperaId">
+            <div class="modal-editar-espera-section"><h4><i class="ph ph-user"></i> Dados do paciente</h4>
+                <div class="grid-2">
+                    <div class="input-group"><label for="editarEsperaNome">Nome completo</label><input id="editarEsperaNome" type="text" required></div>
+                    <div class="input-group"><label for="editarEsperaNascimento">Data de nascimento</label><input id="editarEsperaNascimento" type="date" required></div>
+                    <div class="input-group"><label for="editarEsperaEndereco">Endereço</label><input id="editarEsperaEndereco" type="text" required></div>
+                    <div class="input-group"><label for="editarEsperaContato">Contato</label><input id="editarEsperaContato" type="tel" required></div>
+                </div>
+            </div>
+            <div class="modal-editar-espera-section"><h4><i class="ph ph-clipboard-text"></i> Dados do procedimento</h4>
+                <div class="grid-2">
+                    <div class="input-group"><label for="editarEsperaProcedimento">Procedimento</label><select id="editarEsperaProcedimento" required><option value="">Selecione...</option></select></div>
+                    <div class="input-group"><label for="editarEsperaTipo">Tipo de marcação</label><select id="editarEsperaTipo" required><option value="SUS">SUS</option><option value="CONSORCIO">Consórcio</option><option value="PARTICULAR">Particular</option><option value="DESCONTO">Desconto</option></select></div>
+                    <div class="input-group"><label for="editarEsperaRecebimento">Data de recebimento</label><input id="editarEsperaRecebimento" type="date"></div>
+                    <div class="input-group"><label for="editarEsperaSolicitacao">Data da solicitação</label><input id="editarEsperaSolicitacao" type="date"></div>
+                    <div class="input-group"><label for="editarEsperaMarcacao">Data da marcação</label><input id="editarEsperaMarcacao" type="date"></div>
+                    <div class="input-group checkbox-group"><input type="checkbox" id="editarEsperaRetorno"><label for="editarEsperaRetorno">É retorno?</label></div>
+                </div>
+            </div>
+            <div class="actions modal-editar-espera-actions"><button type="button" class="btn-secondary" onclick="EsperaModule.fecharModalEdicao()"><i class="ph ph-x"></i> Cancelar</button><button type="submit" class="btn-primary" id="btnSalvarEdicaoEspera"><i class="ph ph-floppy-disk"></i> Salvar alterações</button></div>
+        </form>
+    </div>
+</div>
+
 <div id="modalMarcacao" class="modal hidden">
     <div class="modal-content">
         <h3><i class="ph ph-calendar-check"></i> Data da Marcação</h3>
