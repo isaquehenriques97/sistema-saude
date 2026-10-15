@@ -389,7 +389,7 @@ const DB = {
 
     update: async (id, novosDadosApp) => {
         const index = APP_CACHE.findIndex(i => i.id === id);
-        if (index === -1) return;
+        if (index === -1) return false;
         const itemAtual = APP_CACHE[index];
         const itemMesclado = {
             ...itemAtual, ...novosDadosApp,
@@ -398,8 +398,10 @@ const DB = {
         };
         const payload = DataMapper.toSQL(itemMesclado, Auth.user.id);
         const { error } = await supabaseClient.from('atendimentos').update(payload).eq('id', id);
-        if (error) { alert("Erro ao atualizar: " + error.message); }
-        else { APP_CACHE[index] = itemMesclado; Router.refreshCurrent(); }
+        if (error) { alert("Erro ao atualizar: " + error.message); return false; }
+        APP_CACHE[index] = itemMesclado;
+        Router.refreshCurrent();
+        return true;
     },
 
     delete: async (id) => {
@@ -971,6 +973,7 @@ const EsperaModule = {
                 </td>
                 <td>
                     ${botaoAcao}
+                    <i class="ph ph-pencil-simple icon-btn edit" onclick="EsperaModule.abrirModalEdicao('${item.id}')" title="Editar paciente"></i>
                     <i class="ph ph-magnifying-glass icon-btn" onclick="Utils.verDetalhes('${item.id}')" title="Detalhes"></i>
                     <i class="ph ph-trash icon-btn delete" onclick="DB.delete('${item.id}')" title="Apagar"></i>
                 </td>
@@ -1030,21 +1033,64 @@ const EsperaModule = {
         EsperaModule.fecharModalMarcacao();
     },
 
-    editar: (id) => {
+    abrirModalEdicao: (id) => {
         const item = DB.getAll().find(i => i.id === id);
         if (!item) return;
-        Router.navigate('cadastro');
-        document.getElementById('editId').value = item.id;
-        document.getElementById('nomePaciente').value = item.paciente.nome;
-        document.getElementById('dataNascimento').value = item.paciente.nascimento;
-        document.getElementById('endereco').value = item.paciente.endereco;
-        document.getElementById('contato').value = item.paciente.contato;
-        document.getElementById('procedimento').value = item.procedimento.nome;
-        document.getElementById('dataRecebimento').value = item.procedimento.dataRecebimento || '';
-        document.getElementById('dataSolicitacao').value = item.procedimento.dataSolicitacao || '';
-        document.getElementById('dataMarcacao').value = item.procedimento.dataMarcacao || '';
-        document.getElementById('tipoMarcacao').value = item.procedimento.tipo;
-        document.getElementById('isRetorno').checked = item.procedimento.isRetorno;
+        const selectModal = document.getElementById('editarEsperaProcedimento');
+        selectModal.innerHTML = document.getElementById('procedimento').innerHTML;
+        document.getElementById('editarEsperaId').value = item.id;
+        document.getElementById('editarEsperaNome').value = item.paciente.nome || '';
+        document.getElementById('editarEsperaNascimento').value = item.paciente.nascimento || '';
+        document.getElementById('editarEsperaEndereco').value = item.paciente.endereco || '';
+        document.getElementById('editarEsperaContato').value = item.paciente.contato || '';
+        selectModal.value = item.procedimento.nome || '';
+        document.getElementById('editarEsperaRecebimento').value = item.procedimento.dataRecebimento || '';
+        document.getElementById('editarEsperaSolicitacao').value = item.procedimento.dataSolicitacao || '';
+        document.getElementById('editarEsperaMarcacao').value = item.procedimento.dataMarcacao || '';
+        document.getElementById('editarEsperaTipo').value = item.procedimento.tipo || 'SUS';
+        document.getElementById('editarEsperaRetorno').checked = !!item.procedimento.isRetorno;
+        document.getElementById('modalEditarEspera').classList.remove('hidden');
+        document.getElementById('editarEsperaNome').focus();
+    },
+    fecharModalEdicao: () => document.getElementById('modalEditarEspera').classList.add('hidden'),
+    salvarEdicao: async (event) => {
+        event.preventDefault();
+        const id = document.getElementById('editarEsperaId').value;
+        if (!DB.getAll().some(i => i.id === id)) { alert('Não foi possível localizar este registro. Atualize a lista e tente novamente.'); return; }
+        const btn = document.getElementById('btnSalvarEdicaoEspera');
+        const original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph ph-circle-notch"></i> Salvando...';
+        const dataMarcacao = document.getElementById('editarEsperaMarcacao').value;
+        const registro = {
+            status: dataMarcacao ? 'agendado' : 'espera',
+            paciente: {
+                nome: document.getElementById('editarEsperaNome').value.trim().toUpperCase(),
+                nascimento: document.getElementById('editarEsperaNascimento').value,
+                endereco: document.getElementById('editarEsperaEndereco').value.trim(),
+                contato: document.getElementById('editarEsperaContato').value.trim()
+            },
+            procedimento: {
+                nome: document.getElementById('editarEsperaProcedimento').value,
+                dataRecebimento: document.getElementById('editarEsperaRecebimento').value,
+                dataSolicitacao: document.getElementById('editarEsperaSolicitacao').value,
+                dataMarcacao,
+                tipo: document.getElementById('editarEsperaTipo').value,
+                isRetorno: document.getElementById('editarEsperaRetorno').checked
+            }
+        };
+        try {
+            const salvo = await DB.update(id, registro);
+            if (salvo === false) return;
+            EsperaModule.fecharModalEdicao();
+            alert('Dados do paciente atualizados com sucesso!');
+        } catch (error) {
+            console.error('Erro ao editar paciente da lista de espera:', error);
+            alert('Não foi possível salvar as alterações. Tente novamente.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = original;
+        }
     }
 };
 
